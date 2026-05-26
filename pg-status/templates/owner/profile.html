@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Owner Profile — StaySync{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/owner.css') }}">{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 style="margin-bottom:24px">Your Profile</h1>
+    <div class="profile-card">
+        <div class="profile-avatar-section">
+            <div class="avatar avatar-xl">{{ current_user.full_name[0] }}</div>
+            <div>
+                <h3>{{ current_user.full_name }}</h3>
+                <p style="font-size:0.875rem;color:var(--text-secondary)">{{ current_user.email }}</p>
+                <span class="badge badge-accent" style="margin-top:4px">Owner</span>
+            </div>
+        </div>
+        <form method="POST" action="{{ url_for('owner.profile') }}" style="display:flex;flex-direction:column;gap:16px">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="input-group"><label>Full Name</label><input class="input" name="full_name" value="{{ current_user.full_name }}"></div>
+            <div class="input-group"><label>Phone</label><input class="input" name="phone" value="{{ current_user.phone or '' }}"></div>
+            <div class="input-group"><label>Bio</label><textarea class="textarea" name="bio">{{ current_user.bio or '' }}</textarea></div>
+            <div class="input-group"><label>City</label><input class="input" name="city" value="{{ current_user.city or '' }}"></div>
+            <div class="input-group"><label>Company / Business</label><input class="input" name="college_or_work" value="{{ current_user.college_or_work or '' }}"></div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

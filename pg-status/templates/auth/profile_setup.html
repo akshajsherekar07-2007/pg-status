@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Profile Setup — StaySync{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:560px">
+    <div class="auth-form-header" style="text-align:center;margin-bottom:32px">
+        <h1>Complete Your Profile</h1>
+        <p>Help us personalize your experience.</p>
+    </div>
+
+    <form class="auth-form" method="POST" action="{{ url_for('auth.profile_setup') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="input-group">
+            <label for="bio">Bio</label>
+            <textarea class="textarea" id="bio" name="bio" placeholder="Tell us a bit about yourself...">{{ current_user.bio or '' }}</textarea>
+        </div>
+
+        <div class="input-group">
+            <label for="city">City</label>
+            <input class="input" type="text" id="city" name="city" placeholder="e.g., Pune" value="{{ current_user.city or '' }}">
+        </div>
+
+        <div class="input-group">
+            <label for="college_or_work">{% if current_user.role == 'student' %}College / University{% else %}Company / Business{% endif %}</label>
+            <input class="input" type="text" id="college_or_work" name="college_or_work" placeholder="{% if current_user.role == 'student' %}e.g., COEP Technological University{% else %}e.g., StaySync Properties{% endif %}" value="{{ current_user.college_or_work or '' }}">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg btn-full">Complete Setup →</button>
+        <a href="{{ url_for('auth.redirect_home') }}" class="btn btn-ghost btn-full" style="margin-top:8px">Skip for now</a>
+    </form>
+</div>
+{% endblock %}

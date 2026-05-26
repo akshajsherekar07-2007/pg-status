@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% block title %}Manage Beds — {{ property.name }} — StaySync{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/owner.css') }}">{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="bed-manage-header">
+        <div>
+            <h1>{{ property.name }}</h1>
+            <p class="text-secondary">Manage bed statuses and handle holds</p>
+        </div>
+        {% set counts = property.get_bed_counts() %}
+        <div class="availability-pills" style="font-size:1rem">
+            <div class="availability-pill green"><span class="dot"></span>{{ counts.green }}</div>
+            <div class="availability-pill yellow"><span class="dot"></span>{{ counts.yellow }}</div>
+            <div class="availability-pill red"><span class="dot"></span>{{ counts.red }}</div>
+        </div>
+    </div>
+
+    <div class="bed-grid-container" id="bed-grid-container" data-property-id="{{ property.id }}">
+        <!-- Floor Selector -->
+        <div class="floor-selector">
+            {% for floor in floors %}
+            <div class="floor-pill {% if loop.first %}active{% endif %}" onclick="selectFloor({{ floor.id }})" data-floor-id="{{ floor.id }}">
+                {{ floor.floor_label or ('Floor ' ~ floor.floor_number) }}
+            </div>
+            {% endfor %}
+        </div>
+
+        {% for floor in floors %}
+        <div class="floor-content {% if not loop.first %}hidden{% endif %}" id="floor-{{ floor.id }}">
+            {% for room in floor.rooms %}
+            <div class="room-card" style="margin-bottom:16px">
+                <div class="room-header">
+                    <div class="room-title">
+                        🚪 Room {{ room.room_number }} · {{ room.sharing_type }}-Sharing · ₹{{ '{:,}'.format(room.rent_per_bed or 0) }}/bed
+                    </div>
+                    <div class="room-meta">
+                        {% if room.has_ac %}<span class="room-meta-item">❄️ AC</span>{% endif %}
+                        {% if room.has_attached_bath %}<span class="room-meta-item">🚿 Bath</span>{% endif %}
+                    </div>
+                </div>
+                <div class="bed-tiles">
+                    {% for bed in room.beds %}
+                    <div class="bed-tile bed-{{ bed.status }}" id="bed-tile-{{ bed.id }}" data-bed-id="{{ bed.id }}" data-status="{{ bed.status }}">
+                        <div class="bed-tile-icon">
+                            {% if bed.status == 'green' %}🛏️{% elif bed.status == 'yellow' %}⏳{% else %}🔒{% endif %}
+                        </div>
+                        <div class="bed-tile-label">{{ bed.bed_label }}</div>
+                        <div class="bed-tile-status">
+                            {% if bed.status == 'green' %}Vacant{% elif bed.status == 'yellow' %}Under Looking{% else %}Occupied{% endif %}
+                        </div>
+
+                        {% if bed.status == 'yellow' %}
+                        {% set active_hold = bed.get_active_hold() %}
+                        {% if active_hold %}
+                        <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:4px">
+                            {{ active_hold.student.full_name }} ({{ active_hold.student.reliability_score }}/100)
+                        </div>
+                        <div class="countdown" data-countdown="{{ active_hold.expires_at.isoformat() }}">⏱ Calculating...</div>
+                        {% endif %}
+                        {% elif bed.status == 'red' and bed.occupied_since %}
+                        <div class="bed-tile-info">Since {{ bed.occupied_since.strftime('%b %Y') }}</div>
+                        {% endif %}
+
+                        <!-- Owner Controls -->
+                        <div class="bed-controls">
+                            {% if bed.status == 'green' %}
+                            <button class="btn btn-red btn-sm" onclick="showStatusConfirm({{ bed.id }}, 'red')">🔴 Mark Occupied</button>
+                            {% elif bed.status == 'yellow' %}
+                            {% set ah = bed.get_active_hold() %}
+                            {% if ah %}
+                            <button class="btn btn-red btn-sm" onclick="showOverrideConfirm({{ bed.id }}, {{ ah.id }}, '{{ ah.student.full_name }}')">⚡ Override</button>
+                            {% endif %}
+                            <button class="btn btn-red btn-sm" onclick="showStatusConfirm({{ bed.id }}, 'red')">🔴 Occupied</button>
+                            {% elif bed.status == 'red' %}
+                            <button class="btn btn-green btn-sm" onclick="changeBedStatus({{ bed.id }}, 'green')">🟢 Mark Vacant</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Status Confirm Modal -->
+<div class="modal-overlay" id="status-confirm-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Confirm Status Change</h3>
+            <div class="modal-close" onclick="closeStatusConfirm()">✕</div>
+        </div>
+        <div class="modal-body">
+            <p id="status-confirm-text" class="text-secondary"></p>
+            <div class="confirm-checkbox">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="status-confirm-check" onchange="document.getElementById('status-confirm-btn').disabled=!this.checked">
+                    <label for="status-confirm-check" style="text-transform:none;font-size:0.8125rem;color:var(--text-secondary);font-weight:400">
+                        I confirm the offline agreement is signed AND rent is received.
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeStatusConfirm()">Cancel</button>
+            <button class="btn btn-red" id="status-confirm-btn" disabled onclick="executeStatusChange()">Confirm — Mark Occupied</button>
+        </div>
+    </div>
+</div>
+
+<!-- Override Confirm Modal -->
+<div class="modal-overlay" id="override-confirm-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>⚡ Immediate Booking Override</h3>
+            <div class="modal-close" onclick="closeOverrideConfirm()">✕</div>
+        </div>
+        <div class="modal-body">
+            <p id="override-text" class="text-secondary"></p>
+            <div class="confirm-checkbox">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="override-check" onchange="document.getElementById('override-btn').disabled=!this.checked">
+                    <label for="override-check" style="text-transform:none;font-size:0.8125rem;color:var(--text-secondary);font-weight:400">
+                        Offline agreement + payment confirmed
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeOverrideConfirm()">Cancel</button>
+            <button class="btn btn-red" id="override-btn" disabled onclick="executeOverride()">⚡ Confirm Override</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/bed-grid.js') }}"></script>
+<script>
+    if (typeof socket !== 'undefined') {
+        socket.emit('join_property', {property_id: {{ property.id }}});
+    }
+
+    function selectFloor(floorId) {
+        document.querySelectorAll('.floor-content').forEach(c => c.classList.add('hidden'));
+        document.querySelectorAll('.floor-pill').forEach(p => p.classList.remove('active'));
+        document.getElementById('floor-' + floorId).classList.remove('hidden');
+        document.querySelector(`[data-floor-id="${floorId}"]`).classList.add('active');
+    }
+
+    let pendingBedId = null, pendingStatus = null, pendingOverrideBedId = null;
+
+    function showStatusConfirm(bedId, status) {
+        pendingBedId = bedId;
+        pendingStatus = status;
+        document.getElementById('status-confirm-text').textContent = 'You are marking this bed as occupied. This will notify any students with active holds.';
+        document.getElementById('status-confirm-check').checked = false;
+        document.getElementById('status-confirm-btn').disabled = true;
+        document.getElementById('status-confirm-overlay').classList.add('active');
+    }
+
+    function closeStatusConfirm() {
+        document.getElementById('status-confirm-overlay').classList.remove('active');
+    }
+
+    async function executeStatusChange() {
+        closeStatusConfirm();
+        await changeBedStatus(pendingBedId, pendingStatus);
+    }
+
+    function showOverrideConfirm(bedId, holdId, studentName) {
+        pendingOverrideBedId = bedId;
+        document.getElementById('override-text').innerHTML = `You are overriding <strong>${studentName}</strong>'s active hold. A walk-in student is taking this room now. <strong>${studentName}</strong> will be notified immediately and their reliability score will NOT be penalized.`;
+        document.getElementById('override-check').checked = false;
+        document.getElementById('override-btn').disabled = true;
+        document.getElementById('override-confirm-overlay').classList.add('active');
+    }
+
+    function closeOverrideConfirm() {
+        document.getElementById('override-confirm-overlay').classList.remove('active');
+    }
+
+    async function executeOverride() {
+        closeOverrideConfirm();
+        try {
+            const res = await apiPost(`/api/beds/${pendingOverrideBedId}/override`);
+            if (res.success) {
+                showToast('success', 'Override Complete', 'The student has been notified.');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast('error', 'Error', res.error);
+            }
+        } catch(e) {
+            showToast('error', 'Error', 'Override failed.');
+        }
+    }
+
+    async function changeBedStatus(bedId, newStatus) {
+        try {
+            const res = await apiPost(`/api/beds/${bedId}/status`, { status: newStatus });
+            if (res.success) {
+                showToast('success', 'Status Updated', `Bed marked as ${newStatus}.`);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast('error', 'Error', res.error);
+            }
+        } catch(e) {
+            showToast('error', 'Error', 'Status change failed.');
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register — StaySync</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,100..1000&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+</head>
+<body>
+    <div class="auth-page">
+        <!-- Left: Animated -->
+        <div class="auth-left">
+            <div class="floating-orbs">
+                <div class="orb orb-green"></div>
+                <div class="orb orb-yellow"></div>
+                <div class="orb orb-red"></div>
+            </div>
+            <div class="auth-left-content">
+                <h2>Know Before You Go</h2>
+                <p>Join StaySync and never lose a room without knowing. Real-time availability, instant holds, and transparent communication.</p>
+                <div class="hero-legend" style="justify-content:center;margin-top:24px">
+                    <div class="hero-legend-item"><div class="hero-legend-dot green" style="width:8px;height:8px"></div><span style="font-size:0.8125rem">Vacant</span></div>
+                    <div class="hero-legend-item"><div class="hero-legend-dot yellow" style="width:8px;height:8px"></div><span style="font-size:0.8125rem">Under Looking</span></div>
+                    <div class="hero-legend-item"><div class="hero-legend-dot red" style="width:8px;height:8px"></div><span style="font-size:0.8125rem">Occupied</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Form -->
+        <div class="auth-right">
+            <div class="auth-form-container">
+                <div class="auth-form-header">
+                    <a href="/" class="nav-logo" style="margin-bottom:16px;display:inline-flex">Stay<span>Sync</span></a>
+                    <h1>Create Account</h1>
+                    <p>Start your room search with real-time updates.</p>
+                </div>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="flash-msg {{ category }}" style="margin-bottom:12px">
+                    <span>{{ message }}</span>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <form class="auth-form" method="POST" action="{{ url_for('auth.register') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <!-- Role Selector -->
+                    <div class="input-group">
+                        <label>I am a</label>
+                        <div class="role-selector">
+                            <label class="role-card" id="role-student" onclick="selectRole('student')">
+                                <input type="radio" name="role" value="student" {% if form_data and form_data.get('role') == 'student' %}checked{% endif %}>
+                                <div class="role-icon">🎓</div>
+                                <div class="role-title">Student</div>
+                                <div class="role-desc">Looking for a place to stay</div>
+                            </label>
+                            <label class="role-card" id="role-owner" onclick="selectRole('owner')">
+                                <input type="radio" name="role" value="owner" {% if form_data and form_data.get('role') == 'owner' %}checked{% endif %}>
+                                <div class="role-icon">🏠</div>
+                                <div class="role-title">Property Owner</div>
+                                <div class="role-desc">List and manage properties</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="full_name">Full Name</label>
+                        <input class="input" type="text" id="full_name" name="full_name" placeholder="Enter your full name" value="{{ form_data.get('full_name', '') if form_data else '' }}" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <input class="input" type="email" id="email" name="email" placeholder="you@example.com" value="{{ form_data.get('email', '') if form_data else '' }}" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="phone">Phone Number</label>
+                        <input class="input" type="tel" id="phone" name="phone" placeholder="+91 9876543210" value="{{ form_data.get('phone', '') if form_data else '' }}" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input class="input" type="password" id="password" name="password" placeholder="At least 6 characters" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="confirm_password">Confirm Password</label>
+                        <input class="input" type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg btn-full auth-submit" id="register-btn">Create Account →</button>
+                </form>
+
+                <div class="auth-footer">
+                    Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectRole(role) {
+            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById('role-' + role).classList.add('selected');
+            document.querySelector(`input[value="${role}"]`).checked = true;
+        }
+        // Restore selection
+        const checked = document.querySelector('input[name="role"]:checked');
+        if (checked) selectRole(checked.value);
+    </script>
+</body>
+</html>

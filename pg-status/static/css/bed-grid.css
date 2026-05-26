@@ -1,0 +1,253 @@
+/* StaySync — Bed Grid Styles (Centrepiece) */
+
+.bed-grid-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+/* Floor selector pills */
+.floor-selector {
+    display: flex;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--border);
+}
+
+.floor-pill {
+    padding: 8px 20px;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-elevated);
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    transition: var(--transition);
+}
+.floor-pill:hover { border-color: var(--accent); color: var(--text-primary); }
+.floor-pill.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* Room card */
+.room-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: var(--transition);
+}
+.room-card:hover { border-color: var(--border-strong); }
+
+.room-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+}
+
+.room-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.room-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+
+.room-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.bed-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-md);
+    padding: var(--space-lg);
+}
+
+/* ---- BED TILE ---- */
+.bed-tile {
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    text-align: center;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+}
+
+.bed-tile-icon {
+    font-size: 2rem;
+    margin-bottom: var(--space-xs);
+}
+
+.bed-tile-label {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.bed-tile-status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+}
+
+.bed-tile-info {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: var(--space-xs);
+}
+
+.bed-tile-action {
+    margin-top: var(--space-sm);
+}
+
+/* GREEN bed */
+.bed-green {
+    background: var(--green-dim);
+    border: 1.5px solid var(--green-border);
+    cursor: pointer;
+}
+.bed-green:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(34, 197, 94, 0.2);
+    border-color: var(--green);
+}
+.bed-green .bed-tile-icon { color: var(--green); }
+.bed-green .bed-tile-status { background: var(--green-dim); color: var(--green); }
+
+/* YELLOW bed */
+.bed-yellow {
+    background: var(--yellow-dim);
+    border: 1.5px solid var(--yellow-border);
+    animation: pulse-yellow 2.5s ease-in-out infinite;
+}
+.bed-yellow .bed-tile-icon { color: var(--yellow); }
+.bed-yellow .bed-tile-status { background: var(--yellow-dim); color: var(--yellow); }
+
+@keyframes pulse-yellow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.3); }
+    50% { box-shadow: 0 0 0 10px transparent; }
+}
+
+.bed-yellow .countdown {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--yellow);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* RED bed */
+.bed-red {
+    background: var(--red-dim);
+    border: 1.5px solid var(--red-border);
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+.bed-red .bed-tile-icon { color: var(--red); }
+.bed-red .bed-tile-status { background: var(--red-dim); color: var(--red); }
+
+/* Owner bed controls */
+.bed-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-top: var(--space-sm);
+}
+
+.bed-controls .btn {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+}
+
+/* Availability pills (property card) */
+.availability-pills {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: center;
+}
+
+.availability-pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+.availability-pill .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+}
+.availability-pill.green .dot { background: var(--green); }
+.availability-pill.yellow .dot { background: var(--yellow); }
+.availability-pill.red .dot { background: var(--red); }
+
+/* Status legend */
+.status-legend {
+    display: flex;
+    gap: var(--space-lg);
+    align-items: center;
+    font-size: 0.875rem;
+}
+
+.status-legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--text-secondary);
+}
+
+/* Bed tile ROOM TAKEN overlay */
+.bed-taken-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(239, 68, 68, 0.15);
+    backdrop-filter: blur(2px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    z-index: 5;
+}
+.bed-taken-overlay .taken-icon { font-size: 2rem; color: var(--red); }
+.bed-taken-overlay .taken-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-top: var(--space-xs);
+}

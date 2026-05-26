@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Hold Requests — StaySync{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/owner.css') }}">{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>Hold Requests</h1>
+    <p class="text-secondary" style="margin-bottom:24px">Manage all incoming hold requests across your properties.</p>
+    <!-- Rendered in owner/home.html — redirect there -->
+    <a href="{{ url_for('owner.home') }}" class="btn btn-primary">View on Home Page →</a>
+</div>
+{% endblock %}

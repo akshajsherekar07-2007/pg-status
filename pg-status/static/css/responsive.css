@@ -1,0 +1,125 @@
+/* StaySync — Responsive Breakpoints (Mobile First) */
+
+/* Tablet (768px) */
+@media (max-width: 768px) {
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+
+    .container { padding: 0 var(--space-md); }
+
+    /* Navigation */
+    .nav-links { display: none; }
+    .mobile-nav { display: flex; }
+    .page-content { padding-bottom: 80px; }
+
+    /* Landing */
+    .hero-grid { grid-template-columns: 1fr; gap: var(--space-xl); }
+    .hero-content h1 { font-size: 2rem; }
+    .hero-visual { display: none; }
+    .hero-ctas { flex-direction: column; }
+    .hero-legend { flex-wrap: wrap; gap: var(--space-md); }
+
+    .hiw-grid { grid-template-columns: 1fr; }
+    .status-cards { grid-template-columns: 1fr; }
+    .pvs-grid { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .testimonials-grid { grid-template-columns: 1fr; }
+
+    .footer-inner { flex-direction: column; gap: var(--space-md); text-align: center; }
+    .footer-links { justify-content: center; }
+
+    /* Auth */
+    .auth-page { grid-template-columns: 1fr; }
+    .auth-left { display: none; }
+    .auth-right { padding: var(--space-xl); }
+    .role-selector { grid-template-columns: 1fr; }
+
+    /* Browse */
+    .browse-layout { flex-direction: column; }
+    .browse-sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 85%;
+        max-width: 320px;
+        height: 100vh;
+        z-index: 1000;
+        border-radius: 0;
+        transition: left 0.3s ease;
+        overflow-y: auto;
+    }
+    .browse-sidebar.open { left: 0; }
+    .browse-grid { grid-template-columns: 1fr; }
+    .filter-toggle { display: flex; }
+
+    .filter-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: var(--transition);
+    }
+    .filter-overlay.active { opacity: 1; visibility: visible; }
+
+    /* Property detail */
+    .property-detail-header { flex-direction: column; }
+    .property-gallery { grid-template-columns: 1fr; max-height: 300px; }
+    .gallery-thumbs { grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr; }
+    .amenities-grid { grid-template-columns: repeat(2, 1fr); }
+
+    /* Bed grid */
+    .bed-tiles { grid-template-columns: repeat(2, 1fr); padding: var(--space-md); }
+
+    /* Stats */
+    .quick-stats { grid-template-columns: repeat(2, 1fr); }
+    .owner-stats-row { grid-template-columns: repeat(2, 1fr); }
+
+    /* Hold card */
+    .hold-card { flex-direction: column; align-items: stretch; }
+    .hold-countdown { text-align: left; }
+    .hold-card-actions { flex-direction: row; }
+
+    /* Pending card */
+    .pending-card { flex-direction: column; align-items: stretch; }
+    .pending-actions { justify-content: flex-end; }
+
+    /* Add property */
+    .form-row { grid-template-columns: 1fr; }
+    .room-builder-fields { grid-template-columns: 1fr; }
+    .amenity-selector { grid-template-columns: repeat(2, 1fr); }
+
+    /* Toast */
+    .toast-container {
+        left: var(--space-md);
+        right: var(--space-md);
+        bottom: 80px;
+    }
+    .toast { min-width: auto; max-width: none; }
+
+    /* Notification dropdown */
+    .notif-dropdown { width: calc(100vw - 32px); right: -60px; }
+
+    /* Table */
+    .property-table { font-size: 0.8125rem; }
+    .property-table th,
+    .property-table td { padding: var(--space-sm) var(--space-md); }
+}
+
+/* Small mobile (375px) */
+@media (max-width: 375px) {
+    html { font-size: 14px; }
+    .bed-tiles { grid-template-columns: 1fr; }
+    .quick-stats { grid-template-columns: 1fr; }
+    .owner-stats-row { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: 1fr; }
+    .search-bar { flex-direction: column; }
+}
+
+/* Large desktop (1440px+) */
+@media (min-width: 1440px) {
+    .container { max-width: 1320px; }
+    .browse-grid { grid-template-columns: repeat(3, 1fr); }
+    .hero-content h1 { font-size: 3.75rem; }
+}

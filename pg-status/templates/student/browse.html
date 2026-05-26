@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Browse Properties — StaySync{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/student.css') }}">{% endblock %}
+
+{% block content %}
+<!-- Filter Overlay (mobile) -->
+<div class="filter-overlay" id="filter-overlay" onclick="closeSidebar()"></div>
+
+<div class="container-wide">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+        <h2>Browse Properties</h2>
+        <button class="btn btn-secondary btn-sm filter-toggle" onclick="openSidebar()">☰ Filters</button>
+    </div>
+
+    <div class="browse-layout">
+        <!-- Sidebar Filters -->
+        <aside class="browse-sidebar" id="browse-sidebar">
+            <form action="{{ url_for('student.browse') }}" method="GET">
+                <div class="sidebar-section">
+                    <h4>Search</h4>
+                    <input class="input" type="text" name="search" placeholder="Location, name..." value="{{ filters.search or '' }}">
+                </div>
+
+                <div class="sidebar-section">
+                    <h4>Property Type</h4>
+                    <div class="chip-group">
+                        <label class="chip {% if not filters.type %}active{% endif %}">
+                            <input type="radio" name="type" value="" {% if not filters.type %}checked{% endif %} hidden> All
+                        </label>
+                        {% for t in ['PG', 'Hostel', 'Flat'] %}
+                        <label class="chip {% if filters.type == t %}active{% endif %}">
+                            <input type="radio" name="type" value="{{ t }}" {% if filters.type == t %}checked{% endif %} hidden> {{ t }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h4>Gender</h4>
+                    <div class="chip-group">
+                        {% for g in ['Any', 'Male', 'Female'] %}
+                        <label class="chip {% if filters.gender == g %}active{% endif %}">
+                            <input type="radio" name="gender" value="{{ g }}" {% if filters.gender == g %}checked{% endif %} hidden> {{ g }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h4>Budget (₹/month)</h4>
+                    <div class="range-slider">
+                        <input type="range" name="min_budget" min="2000" max="25000" step="500" value="{{ filters.min_budget or 2000 }}" oninput="document.getElementById('min-val').textContent='₹'+this.value">
+                        <input type="range" name="max_budget" min="2000" max="25000" step="500" value="{{ filters.max_budget or 25000 }}" oninput="document.getElementById('max-val').textContent='₹'+this.value">
+                        <div class="range-values">
+                            <span id="min-val">₹{{ filters.min_budget or 2000 }}</span>
+                            <span id="max-val">₹{{ filters.max_budget or 25000 }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h4>Amenities</h4>
+                    {% for amenity in ['WiFi','AC','Hot Water','Meals','Laundry','Parking','CCTV','Security','Gym'] %}
+                    <div class="checkbox-group" style="margin-bottom:8px">
+                        <input type="checkbox" name="amenities" value="{{ amenity }}" id="am-{{ amenity }}" {% if amenity in (filters.amenities or []) %}checked{% endif %}>
+                        <label for="am-{{ amenity }}" style="text-transform:none;font-size:0.8125rem;color:var(--text-secondary);font-weight:400">{{ amenity }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">Apply Filters</button>
+                <a href="{{ url_for('student.browse') }}" class="btn btn-ghost btn-full" style="margin-top:8px">Clear All</a>
+            </form>
+        </aside>
+
+        <!-- Property Grid -->
+        <div class="browse-grid" id="property-grid">
+            {% for prop in properties %}
+            <a href="{{ url_for('student.property_detail', property_id=prop.id) }}" class="property-card" data-property-id="{{ prop.id }}">
+                <div class="property-card-image">
+                    {% if prop.get_primary_image() %}
+                    <img src="{{ url_for('static', filename=prop.get_primary_image()) }}" alt="{{ prop.name }}" loading="lazy">
+                    {% else %}
+                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;color:var(--text-muted)">🏠</div>
+                    {% endif %}
+                    <span class="badge badge-accent type-badge">{{ prop.property_type }}</span>
+                </div>
+                <div class="property-card-body">
+                    <div class="property-card-name">{{ prop.name }}</div>
+                    <div class="property-card-location">📍 {{ prop.locality }}, {{ prop.city }}</div>
+                    {% if prop.gender_allowed != 'Any' %}
+                    <span class="badge badge-neutral" style="margin-bottom:8px">{{ prop.gender_allowed }} Only</span>
+                    {% endif %}
+                    {% set counts = prop.get_bed_counts() %}
+                    <div class="availability-pills" data-property-pills="{{ prop.id }}">
+                        <div class="availability-pill green"><span class="dot"></span><span class="count">{{ counts.green }}</span></div>
+                        <div class="availability-pill yellow"><span class="dot"></span><span class="count">{{ counts.yellow }}</span></div>
+                        <div class="availability-pill red"><span class="dot"></span><span class="count">{{ counts.red }}</span></div>
+                    </div>
+                    <div class="amenity-icons">
+                        {% for a in prop.amenities[:4] %}
+                        <span class="amenity-tag">{{ a.name }}</span>
+                        {% endfor %}
+                        {% if prop.amenities.count() > 4 %}
+                        <span class="amenity-tag">+{{ prop.amenities.count() - 4 }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="property-card-footer">
+                        <div class="property-price">From <strong>₹{{ '{:,}'.format(prop.get_min_rent()) }}</strong>/bed/mo</div>
+                        <span class="btn btn-primary btn-sm">View Beds →</span>
+                    </div>
+                </div>
+            </a>
+            {% else %}
+            <div class="empty-state" style="grid-column:1/-1">
+                <div class="empty-state-icon">🔍</div>
+                <div class="empty-state-title">No properties found</div>
+                <p class="empty-state-text">Try adjusting your filters or search terms.</p>
+                <a href="{{ url_for('student.browse') }}" class="btn btn-secondary">Clear Filters</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+function openSidebar() {
+    document.getElementById('browse-sidebar').classList.add('open');
+    document.getElementById('filter-overlay').classList.add('active');
+}
+function closeSidebar() {
+    document.getElementById('browse-sidebar').classList.remove('open');
+    document.getElementById('filter-overlay').classList.remove('active');
+}
+// Chip toggle
+document.querySelectorAll('.chip-group .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        chip.closest('.chip-group').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+    });
+});
+</script>
+{% endblock %}

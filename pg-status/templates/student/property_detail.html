@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% block title %}{{ property.name }} — StaySync{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="property-detail-header">
+        <div class="property-detail-title">
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+                <span class="badge badge-accent">{{ property.property_type }}</span>
+                {% if property.gender_allowed != 'Any' %}
+                <span class="badge badge-neutral">{{ property.gender_allowed }} Only</span>
+                {% endif %}
+            </div>
+            <h1>{{ property.name }}</h1>
+            <p class="text-secondary" style="font-size:1rem">📍 {{ property.address_line }}, {{ property.locality }}, {{ property.city }} {{ property.pincode }}</p>
+        </div>
+        <div class="owner-mini-card">
+            <div class="avatar">{{ property.owner.full_name[0] }}</div>
+            <div>
+                <div style="font-weight:600;font-size:0.875rem">{{ property.owner.full_name }}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted)">Property Owner</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs" style="margin-bottom:24px">
+        <div class="tab" onclick="switchTab('overview')" id="tab-overview">Overview</div>
+        <div class="tab active" onclick="switchTab('beds')" id="tab-beds">Beds & Availability</div>
+        <div class="tab" onclick="switchTab('photos')" id="tab-photos">Photos</div>
+    </div>
+
+    <!-- Overview Tab -->
+    <div class="tab-content" id="content-overview" style="display:none">
+        <div class="card" style="margin-bottom:24px">
+            <h3 style="margin-bottom:16px">Description</h3>
+            <p>{{ property.description or 'No description provided.' }}</p>
+        </div>
+
+        <h3 style="margin-bottom:16px">Amenities</h3>
+        <div class="amenities-grid" style="margin-bottom:24px">
+            {% for amenity in property.amenities %}
+            <div class="amenity-item">✓ {{ amenity.name }}</div>
+            {% else %}
+            <p class="text-secondary">No amenities listed.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Beds Tab (Centrepiece) -->
+    <div class="tab-content" id="content-beds">
+        <div class="bed-grid-container" id="bed-grid-container" data-property-id="{{ property.id }}">
+            <!-- Status Legend -->
+            <div class="status-legend" style="margin-bottom:16px">
+                <div class="status-legend-item"><div class="status-dot status-dot-green"></div>Vacant</div>
+                <div class="status-legend-item"><div class="status-dot status-dot-yellow"></div>Under Looking</div>
+                <div class="status-legend-item"><div class="status-dot status-dot-red"></div>Occupied</div>
+            </div>
+
+            <!-- Floor Selector -->
+            <div class="floor-selector" id="floor-selector">
+                {% for floor in floors %}
+                <div class="floor-pill {% if loop.first %}active{% endif %}" onclick="selectFloor({{ floor.id }})" data-floor-id="{{ floor.id }}">
+                    {{ floor.floor_label or ('Floor ' ~ floor.floor_number) }}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Floor Contents -->
+            {% for floor in floors %}
+            <div class="floor-content {% if not loop.first %}hidden{% endif %}" id="floor-{{ floor.id }}">
+                {% for room in floor.rooms %}
+                <div class="room-card" style="margin-bottom:16px">
+                    <div class="room-header">
+                        <div class="room-title">
+                            🚪 Room {{ room.room_number }} · {{ room.sharing_type }}-Sharing · ₹{{ '{:,}'.format(room.rent_per_bed) }}/bed
+                        </div>
+                        <div class="room-meta">
+                            {% if room.has_ac %}<span class="room-meta-item">❄️ AC</span>{% endif %}
+                            {% if room.has_attached_bath %}<span class="room-meta-item">🚿 Attached Bath</span>{% endif %}
+                        </div>
+                    </div>
+                    <div class="bed-tiles">
+                        {% for bed in room.beds %}
+                        <div class="bed-tile bed-{{ bed.status }}" id="bed-tile-{{ bed.id }}" data-bed-id="{{ bed.id }}" data-status="{{ bed.status }}">
+                            <div class="bed-tile-icon">
+                                {% if bed.status == 'green' %}🛏️{% elif bed.status == 'yellow' %}⏳{% else %}🔒{% endif %}
+                            </div>
+                            <div class="bed-tile-label">{{ bed.bed_label }}</div>
+                            <div class="bed-tile-status">
+                                {% if bed.status == 'green' %}Vacant{% elif bed.status == 'yellow' %}Under Looking{% else %}Occupied{% endif %}
+                            </div>
+
+                            {% if bed.status == 'yellow' %}
+                            {% set active_hold = bed.get_active_hold() %}
+                            {% if active_hold %}
+                            <div class="countdown" data-countdown="{{ active_hold.expires_at.isoformat() }}">
+                                ⏱ Calculating...
+                            </div>
+                            {% endif %}
+                            {% elif bed.status == 'red' and bed.occupied_since %}
+                            <div class="bed-tile-info">Since {{ bed.occupied_since.strftime('%b %Y') }}</div>
+                            {% endif %}
+
+                            {% if bed.status == 'green' and bed.id not in held_bed_ids and active_hold_count < 3 %}
+                            <div class="bed-tile-action">
+                                <button class="btn btn-green btn-sm" onclick='openHoldModal({{ bed.id }}, {{ bed.bed_label|tojson }}, {{ room.room_number|tojson }}, {{ property.name|tojson }}, {{ room.rent_per_bed or "null" }})'>
+                                    Hold This
+                                </button>
+                            </div>
+                            {% elif bed.status == 'green' and bed.id in held_bed_ids %}
+                            <div class="bed-tile-info">You have a hold here</div>
+                            {% elif bed.status == 'green' and active_hold_count >= 3 %}
+                            <div class="bed-tile-info text-yellow" style="font-size:0.6875rem">Max holds reached</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Photos Tab -->
+    <div class="tab-content" id="content-photos" style="display:none">
+        {% set media_list = property.media.all() %}
+        {% if media_list %}
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+            {% for media in media_list %}
+            <div style="border-radius:12px;overflow:hidden;aspect-ratio:4/3;background:var(--bg-elevated)">
+                <img src="{{ url_for('static', filename=media.file_path) }}" alt="Property photo" loading="lazy" style="width:100%;height:100%;object-fit:cover">
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📷</div>
+            <div class="empty-state-title">No photos uploaded yet</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Hold Request Modal -->
+<div class="modal-overlay" id="hold-modal-overlay">
+    <div class="modal">
+        <!-- Step 1: Duration -->
+        <div id="hold-step-1">
+            <div class="modal-header">
+                <h3>Request a Hold</h3>
+                <div class="modal-close" onclick="closeHoldModal()">✕</div>
+            </div>
+            <div class="modal-body">
+                <p id="hold-modal-subtitle" style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:20px"></p>
+                <p style="font-size:0.8125rem;color:var(--yellow);margin-bottom:20px">⚠️ You'll be notified instantly if this bed is taken</p>
+
+                <label style="font-size:0.8125rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;display:block">Hold Duration</label>
+                <div class="chip-group" id="duration-chips" style="margin-bottom:16px">
+                    <div class="chip" onclick="selectDuration(1)">1 Day</div>
+                    <div class="chip" onclick="selectDuration(2)">2 Days</div>
+                    <div class="chip active" onclick="selectDuration(3)">3 Days</div>
+                    <div class="chip" onclick="selectDuration(5)">5 Days</div>
+                    <div class="chip" onclick="selectDuration(7)">7 Days</div>
+                </div>
+                <p id="hold-expiry-preview" style="font-size:0.8125rem;color:var(--text-secondary)"></p>
+
+                <div style="margin-top:16px;display:flex;align-items:center;gap:8px">
+                    <span style="font-size:0.8125rem;color:var(--text-secondary)">Your reliability score:</span>
+                    <span class="badge badge-green">{{ current_user.reliability_score }}/100</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeHoldModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="showHoldStep2()">Continue →</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Confirm -->
+        <div id="hold-step-2" style="display:none">
+            <div class="modal-header">
+                <h3>Confirm Hold Request</h3>
+                <div class="modal-close" onclick="closeHoldModal()">✕</div>
+            </div>
+            <div class="modal-body">
+                <div class="card" style="margin-bottom:16px;background:var(--bg-base)">
+                    <div id="hold-summary" style="font-size:0.875rem"></div>
+                </div>
+                <div class="checkbox-group" style="margin-top:16px">
+                    <input type="checkbox" id="hold-confirm-check">
+                    <label for="hold-confirm-check" style="text-transform:none;font-size:0.8125rem;color:var(--text-secondary);font-weight:400">I intend to visit this property before my hold expires</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="showHoldStep1()">← Back</button>
+                <button class="btn btn-yellow" id="submit-hold-btn" onclick="submitHoldRequest()" disabled>Submit Hold Request</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/bed-grid.js') }}"></script>
+<script src="{{ url_for('static', filename='js/hold-modal.js') }}"></script>
+<script>
+    // Join property SocketIO room
+    if (typeof socket !== 'undefined') {
+        socket.emit('join_property', {property_id: {{ property.id }}});
+    }
+
+    // Tab switching
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('content-' + tab).style.display = 'block';
+        document.getElementById('tab-' + tab).classList.add('active');
+    }
+
+    // Floor selector
+    function selectFloor(floorId) {
+        document.querySelectorAll('.floor-content').forEach(c => c.classList.add('hidden'));
+        document.querySelectorAll('.floor-pill').forEach(p => p.classList.remove('active'));
+        document.getElementById('floor-' + floorId).classList.remove('hidden');
+        document.querySelector(`[data-floor-id="${floorId}"]`).classList.add('active');
+    }
+</script>
+{% endblock %}

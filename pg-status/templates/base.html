@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="StaySync — Real-time student accommodation platform. Know before you go, book before it's gone.">
+    <title>{% block title %}StaySync{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bed-grid.css') }}">
+    {% block extra_css %}{% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <!-- Authenticated Nav -->
+    <nav class="nav" id="main-nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Stay<span>Sync</span></a>
+
+            <div class="nav-links">
+                {% if current_user.role == 'student' %}
+                <a href="{{ url_for('student.home') }}" class="nav-link {% if request.endpoint == 'student.home' %}active{% endif %}">Home</a>
+                <a href="{{ url_for('student.browse') }}" class="nav-link {% if request.endpoint == 'student.browse' %}active{% endif %}">Browse</a>
+                <a href="{{ url_for('student.dashboard') }}" class="nav-link {% if request.endpoint == 'student.dashboard' %}active{% endif %}">Dashboard</a>
+                {% else %}
+                <a href="{{ url_for('owner.home') }}" class="nav-link {% if request.endpoint == 'owner.home' %}active{% endif %}">Home</a>
+                <a href="{{ url_for('owner.dashboard') }}" class="nav-link {% if request.endpoint == 'owner.dashboard' %}active{% endif %}">Dashboard</a>
+                {% endif %}
+            </div>
+
+            <div class="nav-actions">
+                <!-- Notification Bell -->
+                <div class="nav-bell" id="notif-bell" onclick="toggleNotifications()">
+                    🔔
+                    <span class="bell-badge hidden" id="bell-badge">0</span>
+                    <div class="notif-dropdown" id="notif-dropdown">
+                        <div class="notif-header">
+                            <h4>Notifications</h4>
+                            <span class="notif-mark-read" onclick="markAllRead(event)">Mark all read</span>
+                        </div>
+                        <div class="notif-list" id="notif-list">
+                            <div class="empty-state" style="padding:24px">
+                                <p class="text-secondary" style="font-size:0.8125rem">No notifications yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Avatar -->
+                <a href="{% if current_user.role == 'student' %}{{ url_for('student.profile') }}{% else %}{{ url_for('owner.profile') }}{% endif %}" class="nav-avatar-btn">
+                    <div class="avatar">{{ current_user.full_name[0] }}</div>
+                </a>
+
+                <!-- Logout -->
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-ghost btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Bottom Nav -->
+    <nav class="mobile-nav">
+        {% if current_user.role == 'student' %}
+        <a href="{{ url_for('student.home') }}" class="mobile-nav-item {% if request.endpoint == 'student.home' %}active{% endif %}">
+            <span class="icon">🏠</span>Home
+        </a>
+        <a href="{{ url_for('student.browse') }}" class="mobile-nav-item {% if request.endpoint == 'student.browse' %}active{% endif %}">
+            <span class="icon">🔍</span>Browse
+        </a>
+        <a href="{{ url_for('student.dashboard') }}" class="mobile-nav-item {% if request.endpoint == 'student.dashboard' %}active{% endif %}">
+            <span class="icon">📋</span>Dashboard
+        </a>
+        <a href="{{ url_for('student.profile') }}" class="mobile-nav-item {% if request.endpoint == 'student.profile' %}active{% endif %}">
+            <span class="icon">👤</span>Profile
+        </a>
+        {% else %}
+        <a href="{{ url_for('owner.home') }}" class="mobile-nav-item {% if request.endpoint == 'owner.home' %}active{% endif %}">
+            <span class="icon">🏠</span>Home
+        </a>
+        <a href="{{ url_for('owner.dashboard') }}" class="mobile-nav-item {% if request.endpoint == 'owner.dashboard' %}active{% endif %}">
+            <span class="icon">📊</span>Dashboard
+        </a>
+        <a href="{{ url_for('owner.profile') }}" class="mobile-nav-item {% if request.endpoint == 'owner.profile' %}active{% endif %}">
+            <span class="icon">👤</span>Profile
+        </a>
+        {% endif %}
+    </nav>
+    {% endif %}
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages" id="flash-messages">
+        {% for category, message in messages %}
+        <div class="flash-msg {{ category }}">
+            <span>{{ message }}</span>
+            <span class="close-flash" onclick="this.parentElement.remove()">✕</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Urgent Modal Container -->
+    <div class="modal-overlay" id="urgent-modal-overlay">
+        <div class="modal" id="urgent-modal">
+            <div class="modal-body" id="urgent-modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="page-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Socket.IO -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+
+    <!-- App State -->
+    <script id="user-data" type="application/json">
+        {{ {'id': current_user.id, 'role': current_user.role, 'name': current_user.full_name} | tojson | safe if current_user.is_authenticated else 'null' }}
+    </script>
+    <script>
+        const userData = JSON.parse(document.getElementById('user-data').textContent);
+        const appState = {
+            beds: {},
+            holds: [],
+            user: userData || { id: null, role: null, name: null }
+        };
+        const CSRF_TOKEN = '{{ csrf_token() }}';
+    </script>
+
+    <!-- Core JS -->
+    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/socket.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+
+    <script>
+        // Auto-dismiss flash messages
+        setTimeout(() => {
+            const flashes = document.getElementById('flash-messages');
+            if (flashes) flashes.style.opacity = '0';
+            setTimeout(() => { if (flashes) flashes.remove(); }, 300);
+        }, 4000);
+    </script>
+</body>
+</html>

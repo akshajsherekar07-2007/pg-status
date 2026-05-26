@@ -1,0 +1,65 @@
+/* StaySync Design System — CSS Variables */
+:root {
+    /* Backgrounds */
+    --bg-base: #0a0e1a;
+    --bg-surface: #111828;
+    --bg-elevated: #1a2236;
+    --bg-hover: #232d42;
+
+    /* Accent */
+    --accent: #5b8fff;
+    --accent-hover: #4a7fff;
+    --accent-dim: rgba(91, 143, 255, 0.12);
+
+    /* Status Colors */
+    --green: #22c55e;
+    --green-dim: rgba(34, 197, 94, 0.10);
+    --green-border: rgba(34, 197, 94, 0.30);
+
+    --yellow: #f59e0b;
+    --yellow-dim: rgba(245, 158, 11, 0.10);
+    --yellow-border: rgba(245, 158, 11, 0.30);
+
+    --red: #ef4444;
+    --red-dim: rgba(239, 68, 68, 0.10);
+    --red-border: rgba(239, 68, 68, 0.30);
+
+    /* Text */
+    --text-primary: #e8eaf0;
+    --text-secondary: #8b93a9;
+    --text-muted: #5a6278;
+
+    /* Borders & Shadows */
+    --border: rgba(255, 255, 255, 0.07);
+    --border-strong: rgba(255, 255, 255, 0.12);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-full: 9999px;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+
+    /* Transitions */
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Typography */
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+    --space-3xl: 64px;
+
+    /* Layout */
+    --nav-height: 64px;
+    --sidebar-width: 280px;
+    --container-max: 1200px;
+}

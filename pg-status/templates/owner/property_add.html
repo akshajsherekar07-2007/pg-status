@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block title %}Add Property — StaySync{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/owner.css') }}">{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="add-property-form">
+        <h1 style="text-align:center;margin-bottom:8px">Add New Property</h1>
+        <p class="text-center text-secondary" style="margin-bottom:24px">List your PG, hostel, or flat on StaySync</p>
+
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="progress-step active" id="ps-1">1</div>
+            <div class="progress-line" id="pl-1"></div>
+            <div class="progress-step" id="ps-2">2</div>
+            <div class="progress-line" id="pl-2"></div>
+            <div class="progress-step" id="ps-3">3</div>
+            <div class="progress-line" id="pl-3"></div>
+            <div class="progress-step" id="ps-4">4</div>
+        </div>
+
+        <form id="property-form" method="POST" action="{{ url_for('owner.property_add') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="structure" id="structure-input">
+            <input type="hidden" name="amenities" id="amenities-input">
+
+            <!-- Step 1: Basic Info -->
+            <div class="form-step active" id="step-1">
+                <h3 class="form-section-title">Basic Information</h3>
+                <div class="input-group" style="margin-bottom:16px">
+                    <label>Property Name</label>
+                    <input class="input" name="name" id="prop-name" placeholder="e.g., Sunrise Boys PG" required>
+                </div>
+                <div class="input-group" style="margin-bottom:16px">
+                    <label>Property Type</label>
+                    <div class="chip-group">
+                        <label class="chip active" onclick="selectType(this,'PG')"><input type="radio" name="property_type" value="PG" checked hidden>PG</label>
+                        <label class="chip" onclick="selectType(this,'Hostel')"><input type="radio" name="property_type" value="Hostel" hidden>Hostel</label>
+                        <label class="chip" onclick="selectType(this,'Flat')"><input type="radio" name="property_type" value="Flat" hidden>Flat</label>
+                    </div>
+                </div>
+                <div class="input-group" style="margin-bottom:16px">
+                    <label>Gender Allowed</label>
+                    <div class="chip-group">
+                        <label class="chip active" onclick="selectGender(this,'Any')"><input type="radio" name="gender_allowed" value="Any" checked hidden>Any</label>
+                        <label class="chip" onclick="selectGender(this,'Male')"><input type="radio" name="gender_allowed" value="Male" hidden>Male</label>
+                        <label class="chip" onclick="selectGender(this,'Female')"><input type="radio" name="gender_allowed" value="Female" hidden>Female</label>
+                    </div>
+                </div>
+                <div class="input-group" style="margin-bottom:16px">
+                    <label>Description</label>
+                    <textarea class="textarea" name="description" placeholder="Describe your property..."></textarea>
+                </div>
+                <button type="button" class="btn btn-primary btn-full" onclick="goToStep(2)">Continue →</button>
+            </div>
+
+            <!-- Step 2: Address -->
+            <div class="form-step" id="step-2">
+                <h3 class="form-section-title">Address</h3>
+                <div class="input-group" style="margin-bottom:16px">
+                    <label>Address Line</label>
+                    <input class="input" name="address_line" placeholder="Street address, building name">
+                </div>
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="input-group">
+                        <label>Locality</label>
+                        <input class="input" name="locality" placeholder="e.g., Kothrud">
+                    </div>
+                    <div class="input-group">
+                        <label>City</label>
+                        <input class="input" name="city" placeholder="e.g., Pune">
+                    </div>
+                </div>
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="input-group">
+                        <label>Pincode</label>
+                        <input class="input" name="pincode" placeholder="411038">
+                    </div>
+                </div>
+                <div style="display:flex;gap:12px">
+                    <button type="button" class="btn btn-ghost" onclick="goToStep(1)">← Back</button>
+                    <button type="button" class="btn btn-primary" style="flex:1" onclick="goToStep(3)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Floors, Rooms, Beds -->
+            <div class="form-step" id="step-3">
+                <h3 class="form-section-title">Floors, Rooms & Beds</h3>
+                <div class="floor-builder" id="floor-builder"></div>
+                <button type="button" class="btn btn-secondary btn-full" onclick="addFloor()" style="margin-top:16px">+ Add Floor</button>
+                <div style="display:flex;gap:12px;margin-top:24px">
+                    <button type="button" class="btn btn-ghost" onclick="goToStep(2)">← Back</button>
+                    <button type="button" class="btn btn-primary" style="flex:1" onclick="goToStep(4)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Amenities & Submit -->
+            <div class="form-step" id="step-4">
+                <h3 class="form-section-title">Amenities</h3>
+                <div class="amenity-selector" id="amenity-selector">
+                    {% for amenity in ['WiFi','AC','Hot Water','Meals','Laundry','Parking','Security','CCTV','Generator','Study Room','Common TV','Gym','RO Water','Housekeeping'] %}
+                    <label class="chip" onclick="this.classList.toggle('active')">{{ amenity }}</label>
+                    {% endfor %}
+                </div>
+
+                <div class="divider"></div>
+                <h3 class="form-section-title">Summary</h3>
+                <div id="property-summary" class="card" style="background:var(--bg-base);margin-bottom:24px">
+                    <p class="text-secondary">Add floors and rooms in Step 3 to see summary.</p>
+                </div>
+
+                <div style="display:flex;gap:12px">
+                    <button type="button" class="btn btn-ghost" onclick="goToStep(3)">← Back</button>
+                    <button type="submit" class="btn btn-primary btn-lg" style="flex:1" onclick="prepareSubmit()">Submit Property →</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let floorCount = 0;
+const BED_LABELS = ['Bed A', 'Bed B', 'Bed C'];
+
+function goToStep(step) {
+    document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-' + step).classList.add('active');
+    for (let i = 1; i <= 4; i++) {
+        const ps = document.getElementById('ps-' + i);
+        const pl = document.getElementById('pl-' + (i-1));
+        if (i < step) { ps.classList.remove('active'); ps.classList.add('done'); if(pl) pl.classList.add('done'); }
+        else if (i === step) { ps.classList.add('active'); ps.classList.remove('done'); }
+        else { ps.classList.remove('active','done'); if(pl) pl.classList.remove('done'); }
+    }
+    if (step === 4) updateSummary();
+}
+
+function selectType(el, val) {
+    el.closest('.chip-group').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+}
+const selectGender = selectType;
+
+function addFloor() {
+    floorCount++;
+    const html = `
+    <div class="floor-card-builder" id="floor-${floorCount}" data-floor-index="${floorCount}">
+        <div class="floor-card-header">
+            <div class="input-group" style="flex:1;margin:0">
+                <input class="input" placeholder="Floor label, e.g., Ground Floor" data-field="label" value="Floor ${floorCount-1}" style="padding:8px 12px;font-size:0.875rem">
+            </div>
+            <button type="button" class="btn btn-red btn-sm" onclick="this.closest('.floor-card-builder').remove()">Remove</button>
+        </div>
+        <div class="floor-card-body">
+            <div class="rooms-container" id="rooms-${floorCount}"></div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="addRoom(${floorCount})">+ Add Room</button>
+        </div>
+    </div>`;
+    document.getElementById('floor-builder').insertAdjacentHTML('beforeend', html);
+    addRoom(floorCount);
+}
+
+let roomCount = 0;
+function addRoom(floorIndex) {
+    roomCount++;
+    const html = `
+    <div class="room-builder-card" id="room-${roomCount}" data-room-index="${roomCount}">
+        <div class="room-builder-header">
+            <strong style="font-size:0.875rem">Room</strong>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="this.closest('.room-builder-card').remove()" style="color:var(--red)">✕</button>
+        </div>
+        <div class="room-builder-fields">
+            <div class="input-group">
+                <label style="font-size:0.6875rem">Room Number</label>
+                <input class="input" data-field="room_number" placeholder="101" style="padding:8px;font-size:0.8125rem">
+            </div>
+            <div class="input-group">
+                <label style="font-size:0.6875rem">Sharing Type</label>
+                <select class="select" data-field="sharing_type" onchange="updateBedPreview(this)" style="padding:8px;font-size:0.8125rem">
+                    <option value="1">1-Sharing</option>
+                    <option value="2" selected>2-Sharing</option>
+                    <option value="3">3-Sharing</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label style="font-size:0.6875rem">Rent/Bed (₹)</label>
+                <input class="input" type="number" data-field="rent_per_bed" placeholder="7500" style="padding:8px;font-size:0.8125rem">
+            </div>
+        </div>
+        <div style="display:flex;gap:16px;margin-top:12px">
+            <div class="checkbox-group">
+                <input type="checkbox" data-field="has_ac" id="ac-${roomCount}">
+                <label for="ac-${roomCount}" style="text-transform:none;font-size:0.75rem;color:var(--text-secondary);font-weight:400">AC</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" data-field="has_attached_bath" id="bath-${roomCount}">
+                <label for="bath-${roomCount}" style="text-transform:none;font-size:0.75rem;color:var(--text-secondary);font-weight:400">Attached Bath</label>
+            </div>
+        </div>
+        <div class="beds-preview" id="beds-preview-${roomCount}">
+            <span class="bed-preview-item">Bed A</span>
+            <span class="bed-preview-item">Bed B</span>
+        </div>
+    </div>`;
+    document.getElementById('rooms-' + floorIndex).insertAdjacentHTML('beforeend', html);
+}
+
+function updateBedPreview(select) {
+    const sharing = parseInt(select.value);
+    const room = select.closest('.room-builder-card');
+    const preview = room.querySelector('.beds-preview');
+    preview.innerHTML = '';
+    for (let i = 0; i < sharing; i++) {
+        preview.innerHTML += `<span class="bed-preview-item">${BED_LABELS[i]}</span>`;
+    }
+}
+
+function updateSummary() {
+    const structure = getStructure();
+    const amenities = getAmenities();
+    let totalRooms = 0, totalBeds = 0;
+    structure.forEach(f => {
+        totalRooms += f.rooms.length;
+        f.rooms.forEach(r => totalBeds += parseInt(r.sharing_type));
+    });
+    document.getElementById('property-summary').innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;text-align:center">
+            <div><div style="font-size:1.25rem;font-weight:700;color:var(--accent)">${structure.length}</div><div style="font-size:0.75rem;color:var(--text-muted)">Floors</div></div>
+            <div><div style="font-size:1.25rem;font-weight:700;color:var(--accent)">${totalRooms}</div><div style="font-size:0.75rem;color:var(--text-muted)">Rooms</div></div>
+            <div><div style="font-size:1.25rem;font-weight:700;color:var(--green)">${totalBeds}</div><div style="font-size:0.75rem;color:var(--text-muted)">Beds</div></div>
+            <div><div style="font-size:1.25rem;font-weight:700;color:var(--accent)">${amenities.length}</div><div style="font-size:0.75rem;color:var(--text-muted)">Amenities</div></div>
+        </div>`;
+}
+
+function getStructure() {
+    const floors = [];
+    document.querySelectorAll('.floor-card-builder').forEach(floorEl => {
+        const floor = {
+            label: floorEl.querySelector('[data-field="label"]').value,
+            rooms: []
+        };
+        floorEl.querySelectorAll('.room-builder-card').forEach(roomEl => {
+            floor.rooms.push({
+                room_number: roomEl.querySelector('[data-field="room_number"]')?.value || '',
+                sharing_type: roomEl.querySelector('[data-field="sharing_type"]')?.value || '1',
+                rent_per_bed: roomEl.querySelector('[data-field="rent_per_bed"]')?.value || '0',
+                has_ac: roomEl.querySelector('[data-field="has_ac"]')?.checked || false,
+                has_attached_bath: roomEl.querySelector('[data-field="has_attached_bath"]')?.checked || false
+            });
+        });
+        floors.push(floor);
+    });
+    return floors;
+}
+
+function getAmenities() {
+    return Array.from(document.querySelectorAll('#amenity-selector .chip.active')).map(c => c.textContent.trim());
+}
+
+function prepareSubmit() {
+    document.getElementById('structure-input').value = JSON.stringify(getStructure());
+    document.getElementById('amenities-input').value = JSON.stringify(getAmenities());
+}
+
+// Add initial floor
+addFloor();
+</script>
+{% endblock %}

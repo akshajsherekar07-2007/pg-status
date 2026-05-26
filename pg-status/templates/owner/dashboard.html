@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — StaySync Owner{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/owner.css') }}">{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 style="margin-bottom:24px">Analytics Dashboard</h1>
+
+    <div class="owner-stats-row" style="margin-bottom:32px">
+        <div class="owner-stat">
+            <div class="owner-stat-icon accent">📊</div>
+            <div>
+                <div class="owner-stat-value">{{ stats.total_holds }}</div>
+                <div class="owner-stat-label">Total Holds</div>
+            </div>
+        </div>
+        <div class="owner-stat">
+            <div class="owner-stat-icon green">✅</div>
+            <div>
+                <div class="owner-stat-value">{{ stats.booked }}</div>
+                <div class="owner-stat-label">Bookings</div>
+            </div>
+        </div>
+        <div class="owner-stat">
+            <div class="owner-stat-icon yellow">📈</div>
+            <div>
+                <div class="owner-stat-value">{{ stats.conversion }}%</div>
+                <div class="owner-stat-label">Conversion Rate</div>
+            </div>
+        </div>
+        <div class="owner-stat">
+            <div class="owner-stat-icon accent">🏠</div>
+            <div>
+                <div class="owner-stat-value">{{ properties|length }}</div>
+                <div class="owner-stat-label">Properties</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Properties Accordion -->
+    <h3 style="margin-bottom:16px">🏠 Property Breakdown</h3>
+    {% for prop in properties %}
+    <div class="card" style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="this.nextElementSibling.classList.toggle('hidden')">
+            <div>
+                <h4>{{ prop.name }}</h4>
+                <p style="font-size:0.8125rem;color:var(--text-secondary)">{{ prop.property_type }} · {{ prop.locality }}, {{ prop.city }}</p>
+            </div>
+            <div style="display:flex;gap:16px;align-items:center">
+                {% set counts = prop.get_bed_counts() %}
+                <div class="availability-pills">
+                    <div class="availability-pill green"><span class="dot"></span>{{ counts.green }}</div>
+                    <div class="availability-pill yellow"><span class="dot"></span>{{ counts.yellow }}</div>
+                    <div class="availability-pill red"><span class="dot"></span>{{ counts.red }}</div>
+                </div>
+                <span style="color:var(--text-muted);font-size:1.25rem">▾</span>
+            </div>
+        </div>
+        <div class="hidden" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            {% for floor in prop.floors %}
+            <div style="margin-bottom:12px">
+                <h5 style="margin-bottom:8px;color:var(--text-secondary)">{{ floor.floor_label or ('Floor ' ~ floor.floor_number) }}</h5>
+                {% for room in floor.rooms %}
+                <div style="display:flex;gap:8px;margin-bottom:8px;margin-left:16px;flex-wrap:wrap">
+                    <span style="font-size:0.8125rem;color:var(--text-secondary);min-width:100px">Room {{ room.room_number }}:</span>
+                    {% for bed in room.beds %}
+                    <span class="badge {% if bed.status == 'green' %}badge-green{% elif bed.status == 'yellow' %}badge-yellow{% else %}badge-red{% endif %}">
+                        {{ bed.bed_label }}
+                    </span>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+            <a href="{{ url_for('owner.bed_manage', property_id=prop.id) }}" class="btn btn-secondary btn-sm" style="margin-top:8px">Manage Beds →</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
