@@ -10,28 +10,36 @@
     <!-- Stats -->
     <div class="owner-stats-row">
         <div class="owner-stat">
-            <div class="owner-stat-icon green">🟢</div>
+            <div class="owner-stat-icon green">
+                <span class="status-dot status-dot-green" style="width: 10px; height: 10px;"></span>
+            </div>
             <div>
                 <div class="owner-stat-value">{{ stats.green }}</div>
                 <div class="owner-stat-label">Vacant Beds</div>
             </div>
         </div>
         <div class="owner-stat">
-            <div class="owner-stat-icon yellow">🟡</div>
+            <div class="owner-stat-icon yellow">
+                <span class="status-dot status-dot-yellow" style="width: 10px; height: 10px;"></span>
+            </div>
             <div>
                 <div class="owner-stat-value">{{ stats.yellow }}</div>
                 <div class="owner-stat-label">On Hold</div>
             </div>
         </div>
         <div class="owner-stat">
-            <div class="owner-stat-icon red">🔴</div>
+            <div class="owner-stat-icon red">
+                <span class="status-dot status-dot-red" style="width: 10px; height: 10px;"></span>
+            </div>
             <div>
                 <div class="owner-stat-value">{{ stats.red }}</div>
                 <div class="owner-stat-label">Occupied</div>
             </div>
         </div>
         <div class="owner-stat">
-            <div class="owner-stat-icon accent">📬</div>
+            <div class="owner-stat-icon accent">
+                <i data-lucide="mail" style="width: 16px; height: 16px; display: inline-block;"></i>
+            </div>
             <div>
                 <div class="owner-stat-value">{{ stats.pending }}</div>
                 <div class="owner-stat-label">Pending Requests</div>
@@ -40,40 +48,55 @@
     </div>
 
     <!-- Pending Hold Requests -->
-    <h3 class="section-title">📬 Pending Hold Requests</h3>
-    {% for hold in pending_holds %}
-    <div class="pending-card" id="pending-{{ hold.id }}">
-        <div class="pending-student">
-            <div class="avatar">{{ hold.student.full_name[0] }}</div>
-            <div class="pending-student-info">
-                <h4>{{ hold.student.full_name }}</h4>
-                <span class="score-badge {% if hold.student.reliability_score >= 80 %}score-high{% elif hold.student.reliability_score >= 50 %}score-mid{% else %}score-low{% endif %}">
-                    {{ hold.student.reliability_score }}/100 ★
-                </span>
+    <h3 class="section-title" style="display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="mail" style="width: 18px; height: 18px;"></i> Pending Hold Requests
+    </h3>
+    <div class="stagger">
+        {% for hold in pending_holds %}
+        <div class="pending-card" id="pending-{{ hold.id }}">
+            <div class="pending-student">
+                <div class="avatar">{{ hold.student.full_name[0] }}</div>
+                <div class="pending-student-info">
+                    <h4>{{ hold.student.full_name }}</h4>
+                    <span class="score-badge {% if hold.student.reliability_score >= 80 %}score-high{% elif hold.student.reliability_score >= 50 %}score-mid{% else %}score-low{% endif %}" style="margin-top: 4px;">
+                        Score: {{ hold.student.reliability_score }}/100
+                    </span>
+                </div>
+            </div>
+            <div class="pending-details">
+                <div class="detail-row" style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                    <i data-lucide="bed" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
+                    <span>{{ hold.bed.bed_label }} · Room {{ hold.bed.room.room_number }}</span>
+                </div>
+                <div class="detail-row" style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                    <i data-lucide="home" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
+                    <span>{{ hold.bed.room.floor.property.name }}</span>
+                </div>
+                <div class="detail-row" style="display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="calendar" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
+                    <span>{{ hold.hold_days }} day hold · {{ hold.requested_at.strftime('%b %d, %I:%M %p') }}</span>
+                </div>
+            </div>
+            <div class="pending-actions">
+                <button class="btn btn-green btn-sm" onclick="respondHold({{ hold.id }}, 'accept')">✓ Accept</button>
+                <button class="btn btn-red btn-sm" onclick="showRejectDialog({{ hold.id }})">✗ Reject</button>
             </div>
         </div>
-        <div class="pending-details">
-            <div class="detail-row">🛏️ {{ hold.bed.bed_label }} · Room {{ hold.bed.room.room_number }}</div>
-            <div class="detail-row">🏠 {{ hold.bed.room.floor.property.name }}</div>
-            <div class="detail-row">📅 {{ hold.hold_days }} day hold · {{ hold.requested_at.strftime('%b %d, %I:%M %p') }}</div>
+        {% else %}
+        <div class="empty-state" style="margin-bottom:32px;">
+            <div class="empty-state-icon"><i data-lucide="inbox" style="width: 36px; height: 36px;"></i></div>
+            <div class="empty-state-title">No pending requests</div>
+            <p class="empty-state-text">New hold requests from students will appear here.</p>
         </div>
-        <div class="pending-actions">
-            <button class="btn btn-green btn-sm" onclick="respondHold({{ hold.id }}, 'accept')">✓ Accept</button>
-            <button class="btn btn-red btn-sm" onclick="showRejectDialog({{ hold.id }})">✗ Reject</button>
-        </div>
+        {% endfor %}
     </div>
-    {% else %}
-    <div class="empty-state" style="margin-bottom:32px">
-        <div class="empty-state-icon">📭</div>
-        <div class="empty-state-title">No pending requests</div>
-        <p class="empty-state-text">New hold requests from students will appear here.</p>
-    </div>
-    {% endfor %}
 
     <!-- Property Overview -->
     <div class="divider"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-        <h3 class="section-title" style="margin-bottom:0">🏠 Your Properties</h3>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <h3 class="section-title" style="margin-bottom:0; display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="building" style="width: 18px; height: 18px;"></i> Your Properties
+        </h3>
         <a href="{{ url_for('owner.property_add') }}" class="btn btn-primary btn-sm">+ Add Property</a>
     </div>
 
@@ -83,10 +106,10 @@
             <tr>
                 <th>Name</th>
                 <th>Type</th>
-                <th>🟢</th>
-                <th>🟡</th>
-                <th>🔴</th>
-                <th>Total</th>
+                <th><span class="status-dot status-dot-green" style="width: 8px; height: 8px; display: inline-block;"></span></th>
+                <th><span class="status-dot status-dot-yellow" style="width: 8px; height: 8px; display: inline-block;"></span></th>
+                <th><span class="status-dot status-dot-red" style="width: 8px; height: 8px; display: inline-block;"></span></th>
+                <th>Total Beds</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -94,7 +117,7 @@
             {% for prop in properties %}
             {% set counts = prop.get_bed_counts() %}
             <tr>
-                <td style="font-weight:600">{{ prop.name }}</td>
+                <td style="font-weight:500">{{ prop.name }}</td>
                 <td><span class="badge badge-accent">{{ prop.property_type }}</span></td>
                 <td class="text-green">{{ counts.green }}</td>
                 <td class="text-yellow">{{ counts.yellow }}</td>
@@ -109,7 +132,7 @@
     </table>
     {% else %}
     <div class="empty-state">
-        <div class="empty-state-icon">🏗️</div>
+        <div class="empty-state-icon"><i data-lucide="building" style="width: 36px; height: 36px;"></i></div>
         <div class="empty-state-title">No properties yet</div>
         <p class="empty-state-text">Add your first property to start receiving hold requests.</p>
         <a href="{{ url_for('owner.property_add') }}" class="btn btn-primary">Add Property →</a>

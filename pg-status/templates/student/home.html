@@ -3,48 +3,97 @@
 {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/student.css') }}">{% endblock %}
 
 {% block content %}
-<div class="container">
-    <!-- Hero -->
-    <div class="student-hero">
-        <h1>Find your perfect stay, <span class="text-accent">instantly</span>.</h1>
-        <p class="text-secondary">Browse real-time availability across PGs, hostels, and flats.</p>
+<div class="container" style="max-width: 800px; margin-top: var(--space-md);">
+    <!-- Discover Header -->
+    <div style="margin-bottom: var(--space-md);">
+        <div style="font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 4px;">Discover</div>
+        <h1 style="font-size: 22px; font-weight: 500; color: var(--text-primary);">Find your stay</h1>
+    </div>
 
-        <!-- Search Bar -->
-        <form class="search-bar" action="{{ url_for('student.browse') }}" method="GET">
-            <input class="input" type="text" name="search" placeholder="Search by location, name..." style="flex:2">
-            <select class="select" name="type" style="flex:0 0 auto">
-                <option value="">All Types</option>
+    <!-- Navigation Pills -->
+    <div style="display: flex; gap: 8px; margin-bottom: 24px;">
+        <a href="{{ url_for('student.home') }}" class="tab-pill active" style="padding: 6px 14px; border-radius: 9999px; background: var(--bg-hover); color: var(--text-primary); font-size: 13px; font-weight: 500; text-decoration: none; transition: var(--transition);">Browse</a>
+        <a href="{{ url_for('student.dashboard') }}" class="tab-pill" style="padding: 6px 14px; border-radius: 9999px; background: transparent; color: var(--text-secondary); font-size: 13px; font-weight: 500; text-decoration: none; transition: var(--transition);">My applications ({{ stats.active_holds }})</a>
+    </div>
+
+    <!-- Search Form (Notion/Linear style) -->
+    <form class="search-bar" action="{{ url_for('student.browse') }}" method="GET" style="display: flex; align-items: center; gap: var(--space-xs); background: var(--bg-surface); border: var(--border-width) solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: var(--space-lg);">
+        <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+            <i data-lucide="search" style="width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0;"></i>
+            <input class="input" type="text" name="search" placeholder="Search by city..." style="border: none; padding: 4px 0; background: transparent; width: 100%; outline: none;" value="{{ filters.search or '' if filters is defined else '' }}">
+        </div>
+        <div style="width: 1px; height: 20px; background: var(--border);"></div>
+        <div style="display: flex; align-items: center; gap: 4px; flex: 0 0 140px; position: relative;">
+            <select class="select" name="type" style="border: none; padding: 4px 24px 4px 4px; background: transparent; width: 100%; cursor: pointer; outline: none; font-size: 13px;">
+                <option value="">All types</option>
                 <option value="PG">PG</option>
                 <option value="Hostel">Hostel</option>
                 <option value="Flat">Flat</option>
             </select>
-            <button type="submit" class="btn btn-primary">Search →</button>
-        </form>
-
-        <!-- Status Legend -->
-        <div class="status-legend" style="margin-bottom:24px">
-            <div class="status-legend-item"><div class="status-dot status-dot-green"></div>Vacant</div>
-            <div class="status-legend-item"><div class="status-dot status-dot-yellow"></div>Under Looking</div>
-            <div class="status-legend-item"><div class="status-dot status-dot-red"></div>Occupied</div>
         </div>
+        <button type="submit" class="btn btn-primary btn-sm" style="border-radius: 9999px; padding: 6px 16px;">Search</button>
+    </form>
+
+    <!-- Properties Result / Listings -->
+    <div class="stagger">
+        {% if properties %}
+        <div class="browse-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-md); margin-bottom: 32px;">
+            {% for prop in properties %}
+            <a href="{{ url_for('student.property_detail', property_id=prop.id) }}" class="property-card" style="display: block; background: var(--bg-surface); border: var(--border-width) solid var(--border); border-radius: var(--radius-md); overflow: hidden; text-decoration: none; color: var(--text-primary); transition: var(--transition);">
+                <div class="property-card-image" style="height: 160px; background: var(--bg-hover); overflow: hidden; position: relative;">
+                    {% if prop.get_primary_image() %}
+                    <img src="{{ url_for('static', filename=prop.get_primary_image()) }}" alt="{{ prop.name }}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                        <i data-lucide="home" style="width: 32px; height: 32px;"></i>
+                    </div>
+                    {% endif %}
+                    <span class="badge badge-accent type-badge" style="position: absolute; top: 12px; left: 12px;">{{ prop.property_type }}</span>
+                </div>
+                <div class="property-card-body" style="padding: var(--space-md);">
+                    <div class="property-card-name" style="font-size: 15px; font-weight: 500; margin-bottom: 2px;">{{ prop.name }}</div>
+                    <div class="property-card-location" style="font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; margin-bottom: 12px;">
+                        <i data-lucide="map-pin" style="width: 12px; height: 12px;"></i> {{ prop.locality }}, {{ prop.city }}
+                    </div>
+                    {% set counts = prop.get_bed_counts() %}
+                    <div class="availability-pills" style="margin-bottom: 12px;">
+                        <div class="availability-pill green"><span class="dot"></span>{{ counts.green }}</div>
+                        <div class="availability-pill yellow"><span class="dot"></span>{{ counts.yellow }}</div>
+                        <div class="availability-pill red"><span class="dot"></span>{{ counts.red }}</div>
+                    </div>
+                    <div class="property-card-footer" style="display: flex; align-items: center; justify-content: space-between; border-top: var(--border-width) solid var(--border); padding-top: var(--space-sm); margin-top: var(--space-sm);">
+                        <div class="property-price" style="font-size: 12px; color: var(--text-secondary);">From <strong style="font-size: 14px; color: var(--text-primary);">₹{{ '{:,}'.format(prop.get_min_rent()) }}</strong>/mo</div>
+                        <span class="btn btn-primary btn-sm" style="border-radius: 9999px;">View</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card text-center" style="padding: 48px; border-radius: var(--radius-md); border: var(--border-width) solid var(--border); background: var(--bg-surface); display: flex; align-items: center; justify-content: center; min-height: 120px;">
+            <p style="font-size: 14px; color: var(--text-secondary); margin: 0;">No properties match your filters.</p>
+        </div>
+        {% endif %}
     </div>
 
-    <!-- Active Holds -->
+    <!-- Active Holds Row -->
     {% if active_holds %}
-    <div style="margin-bottom:32px">
-        <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:8px">⏳ Your Active Holds</h3>
-        <div class="active-holds-row">
+    <div style="margin-top: 32px; margin-bottom: 32px;">
+        <h3 style="margin-bottom:16px; display:flex; align-items:center; gap:6px;">
+            <i data-lucide="clock" style="width: 16px; height: 16px;"></i> Your Active Holds
+        </h3>
+        <div class="active-holds-row" style="display: flex; gap: var(--space-sm); overflow-x: auto; padding-bottom: 8px;">
             {% for hold in active_holds %}
-            <div class="hold-mini-card">
+            <div class="hold-mini-card" style="flex-shrink: 0; min-width: 240px; background: var(--bg-surface); border: var(--border-width) solid var(--yellow-border); border-radius: var(--radius-sm); padding: 12px; display: flex; justify-content: space-between; align-items: center;">
                 <div class="hold-mini-info">
-                    <h4>{{ hold.bed.bed_label }} · {{ hold.bed.room.room_number }}</h4>
-                    <p>{{ hold.bed.room.floor.property.name }}</p>
+                    <h4 style="font-size: 13px; font-weight: 500; margin: 0 0 2px;">{{ hold.bed.bed_label }} · {{ hold.bed.room.room_number }}</h4>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin: 0;">{{ hold.bed.room.floor.property.name }}</p>
                 </div>
-                <div class="hold-mini-countdown" data-countdown="{{ hold.expires_at.isoformat() if hold.expires_at else '' }}">
+                <div class="hold-mini-countdown" data-countdown="{{ hold.expires_at.isoformat() if hold.expires_at else '' }}" style="font-size: 12px; color: var(--yellow-text); font-weight: 500;">
                     {% if hold.status == 'pending' %}
                     <span class="badge badge-yellow">Pending</span>
                     {% else %}
-                    <span>⏱ Calculating...</span>
+                    <span>Calculating...</span>
                     {% endif %}
                 </div>
             </div>
@@ -52,66 +101,16 @@
         </div>
     </div>
     {% endif %}
-
-    <!-- Quick Stats -->
-    <div class="quick-stats">
-        <div class="stat-card">
-            <div class="stat-value text-accent">{{ stats.total_holds }}</div>
-            <div class="stat-label">Total Holds</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value text-yellow">{{ stats.active_holds }}</div>
-            <div class="stat-label">Active Holds</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value text-green">{{ stats.score }}</div>
-            <div class="stat-label">Reliability Score</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value text-accent">{{ stats.unread }}</div>
-            <div class="stat-label">Unread Alerts</div>
-        </div>
-    </div>
-
-    <!-- Featured Properties -->
-    <h3 style="margin:32px 0 16px">🏠 Featured Listings</h3>
-    <div class="browse-grid" style="margin-bottom:32px">
-        {% for prop in properties %}
-        <a href="{{ url_for('student.property_detail', property_id=prop.id) }}" class="property-card">
-            <div class="property-card-image">
-                {% if prop.get_primary_image() %}
-                <img src="{{ url_for('static', filename=prop.get_primary_image()) }}" alt="{{ prop.name }}" loading="lazy">
-                {% else %}
-                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;color:var(--text-muted)">🏠</div>
-                {% endif %}
-                <span class="badge badge-accent type-badge">{{ prop.property_type }}</span>
-            </div>
-            <div class="property-card-body">
-                <div class="property-card-name">{{ prop.name }}</div>
-                <div class="property-card-location">📍 {{ prop.locality }}, {{ prop.city }}</div>
-                {% set counts = prop.get_bed_counts() %}
-                <div class="availability-pills">
-                    <div class="availability-pill green"><span class="dot"></span>{{ counts.green }}</div>
-                    <div class="availability-pill yellow"><span class="dot"></span>{{ counts.yellow }}</div>
-                    <div class="availability-pill red"><span class="dot"></span>{{ counts.red }}</div>
-                </div>
-                <div class="property-card-footer">
-                    <div class="property-price">From <strong>₹{{ '{:,}'.format(prop.get_min_rent()) }}</strong>/bed/mo</div>
-                    <span class="btn btn-primary btn-sm">View Beds →</span>
-                </div>
-            </div>
-        </a>
-        {% else %}
-        <div class="empty-state" style="grid-column:1/-1">
-            <div class="empty-state-icon">🏠</div>
-            <div class="empty-state-title">No properties yet</div>
-            <p class="empty-state-text">Properties will appear here once owners list them.</p>
-        </div>
-        {% endfor %}
-    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/student-dashboard.js') }}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+</script>
 {% endblock %}

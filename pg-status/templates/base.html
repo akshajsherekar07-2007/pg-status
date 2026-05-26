@@ -6,10 +6,10 @@
     <meta name="description" content="StaySync — Real-time student accommodation platform. Know before you go, book before it's gone.">
     <title>{% block title %}StaySync{% endblock %}</title>
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Inter weights 400 and 500 only -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
@@ -19,6 +19,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bed-grid.css') }}">
     {% block extra_css %}{% endblock %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     {% if current_user.is_authenticated %}
@@ -41,7 +44,7 @@
             <div class="nav-actions">
                 <!-- Notification Bell -->
                 <div class="nav-bell" id="notif-bell" onclick="toggleNotifications()">
-                    🔔
+                    <i data-lucide="bell" style="width: 16px; height: 16px;"></i>
                     <span class="bell-badge hidden" id="bell-badge">0</span>
                     <div class="notif-dropdown" id="notif-dropdown">
                         <div class="notif-header">
@@ -50,7 +53,7 @@
                         </div>
                         <div class="notif-list" id="notif-list">
                             <div class="empty-state" style="padding:24px">
-                                <p class="text-secondary" style="font-size:0.8125rem">No notifications yet</p>
+                                <p class="text-secondary" style="font-size:12px">No notifications yet</p>
                             </div>
                         </div>
                     </div>
@@ -71,26 +74,26 @@
     <nav class="mobile-nav">
         {% if current_user.role == 'student' %}
         <a href="{{ url_for('student.home') }}" class="mobile-nav-item {% if request.endpoint == 'student.home' %}active{% endif %}">
-            <span class="icon">🏠</span>Home
+            <span class="icon"><i data-lucide="home" style="width: 18px; height: 18px;"></i></span>Home
         </a>
         <a href="{{ url_for('student.browse') }}" class="mobile-nav-item {% if request.endpoint == 'student.browse' %}active{% endif %}">
-            <span class="icon">🔍</span>Browse
+            <span class="icon"><i data-lucide="search" style="width: 18px; height: 18px;"></i></span>Browse
         </a>
         <a href="{{ url_for('student.dashboard') }}" class="mobile-nav-item {% if request.endpoint == 'student.dashboard' %}active{% endif %}">
-            <span class="icon">📋</span>Dashboard
+            <span class="icon"><i data-lucide="clipboard-list" style="width: 18px; height: 18px;"></i></span>Dashboard
         </a>
         <a href="{{ url_for('student.profile') }}" class="mobile-nav-item {% if request.endpoint == 'student.profile' %}active{% endif %}">
-            <span class="icon">👤</span>Profile
+            <span class="icon"><i data-lucide="user" style="width: 18px; height: 18px;"></i></span>Profile
         </a>
         {% else %}
         <a href="{{ url_for('owner.home') }}" class="mobile-nav-item {% if request.endpoint == 'owner.home' %}active{% endif %}">
-            <span class="icon">🏠</span>Home
+            <span class="icon"><i data-lucide="home" style="width: 18px; height: 18px;"></i></span>Home
         </a>
         <a href="{{ url_for('owner.dashboard') }}" class="mobile-nav-item {% if request.endpoint == 'owner.dashboard' %}active{% endif %}">
-            <span class="icon">📊</span>Dashboard
+            <span class="icon"><i data-lucide="bar-chart-3" style="width: 18px; height: 18px;"></i></span>Dashboard
         </a>
         <a href="{{ url_for('owner.profile') }}" class="mobile-nav-item {% if request.endpoint == 'owner.profile' %}active{% endif %}">
-            <span class="icon">👤</span>Profile
+            <span class="icon"><i data-lucide="user" style="width: 18px; height: 18px;"></i></span>Profile
         </a>
         {% endif %}
     </nav>
@@ -156,6 +159,13 @@
             if (flashes) flashes.style.opacity = '0';
             setTimeout(() => { if (flashes) flashes.remove(); }, 300);
         }, 4000);
+
+        // Run Lucide icon creation
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
     </script>
 </body>
 </html>

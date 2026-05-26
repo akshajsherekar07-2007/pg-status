@@ -45,23 +45,34 @@ function showToast(type, title, message) {
     const container = document.getElementById('toast-container');
     if (!container) return;
 
-    const icons = { success: '✅', warning: '⚠️', error: '❌', info: 'ℹ️' };
+    const icons = {
+        success: '<i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i>',
+        warning: '<i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>',
+        error: '<i data-lucide="alert-circle" style="width: 16px; height: 16px;"></i>',
+        info: '<i data-lucide="info" style="width: 16px; height: 16px;"></i>'
+    };
     const toasts = container.querySelectorAll('.toast');
     if (toasts.length >= 3) toasts[0].remove();
 
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     toast.innerHTML = `
-        <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+        <span class="toast-icon">${icons[type] || '<i data-lucide="info" style="width: 16px; height: 16px;"></i>'}</span>
         <div class="toast-content">
             <div class="toast-title">${title}</div>
             <div class="toast-message">${message}</div>
         </div>
         <span class="toast-close" onclick="this.parentElement.remove()">✕</span>
-        <div class="toast-progress"></div>
     `;
     container.appendChild(toast);
-    setTimeout(() => toast.remove(), 5000);
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+    setTimeout(() => {
+        toast.style.transition = 'opacity 200ms ease';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 200);
+    }, 5000);
 }
 
 function timeAgo(dateStr) {

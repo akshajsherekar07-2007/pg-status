@@ -94,7 +94,8 @@
     .toast-container {
         left: var(--space-md);
         right: var(--space-md);
-        bottom: 80px;
+        top: var(--space-md);
+        bottom: auto;
     }
     .toast { min-width: auto; max-width: none; }
 

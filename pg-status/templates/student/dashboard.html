@@ -4,60 +4,72 @@
 
 {% block content %}
 <div class="container">
-    <div class="dashboard-header">
+    <div class="dashboard-header" style="margin-bottom: var(--space-lg);">
         <h1>Your Dashboard</h1>
-        <div class="badge badge-green" style="font-size:0.875rem;padding:8px 16px">Score: {{ score }}/100</div>
+        <div class="badge badge-green" style="font-size:12px; padding:6px 12px;">Score: {{ score }}/100</div>
     </div>
 
     <!-- Active Holds -->
-    <h3 style="margin-bottom:16px">⏳ Active Holds ({{ active_holds|length }})</h3>
+    <h3 style="margin-bottom:16px; display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="clock" style="width: 18px; height: 18px;"></i> Active Holds ({{ active_holds|length }})
+    </h3>
 
-    {% for hold in active_holds %}
-    <div class="hold-card {% if hold.status == 'cancelled_by_override' %}taken{% endif %}" data-hold-id="{{ hold.id }}">
-        <div class="avatar-lg" style="font-size:1.5rem;width:60px;height:60px;background:var(--yellow-dim);color:var(--yellow);display:flex;align-items:center;justify-content:center;border-radius:12px;flex-shrink:0">🛏️</div>
-        <div class="hold-card-info">
-            <h3>{{ hold.bed.bed_label }} · Room {{ hold.bed.room.room_number }}</h3>
-            <p style="font-size:0.875rem;color:var(--text-secondary)">{{ hold.bed.room.floor.property.name }}</p>
-            <div class="hold-card-meta">
-                <span>📅 {{ hold.hold_days }} day hold</span>
-                <span>💰 ₹{{ '{:,}'.format(hold.bed.room.rent_per_bed or 0) }}/mo</span>
-                <span class="badge {% if hold.status == 'active' %}badge-yellow{% elif hold.status == 'pending' %}badge-accent{% endif %}">
-                    {{ hold.status|title }}
-                </span>
+    <div class="stagger">
+        {% for hold in active_holds %}
+        <div class="hold-card {% if hold.status == 'cancelled_by_override' %}taken{% endif %}" data-hold-id="{{ hold.id }}">
+            <div class="avatar-lg" style="width:48px; height:48px; background:var(--yellow-dim); color:var(--yellow-text); display:flex; align-items:center; justify-content:center; border-radius:var(--radius-sm); border: var(--border-width) solid var(--yellow-border); flex-shrink:0;">
+                <i data-lucide="bed" style="width: 20px; height: 20px;"></i>
+            </div>
+            <div class="hold-card-info">
+                <h3>{{ hold.bed.bed_label }} · Room {{ hold.bed.room.room_number }}</h3>
+                <p style="font-size:13px; color:var(--text-secondary); margin: 2px 0 8px;">{{ hold.bed.room.floor.property.name }}</p>
+                <div class="hold-card-meta" style="display: flex; gap: 16px; font-size: 12px; color: var(--text-secondary);">
+                    <span style="display: inline-flex; align-items: center; gap: 4px;">
+                        <i data-lucide="calendar" style="width: 14px; height: 14px;"></i> {{ hold.hold_days }} day hold
+                    </span>
+                    <span style="display: inline-flex; align-items: center; gap: 4px;">
+                        <i data-lucide="indian-rupee" style="width: 14px; height: 14px;"></i> ₹{{ '{:,}'.format(hold.bed.room.rent_per_bed or 0) }}/mo
+                    </span>
+                    <span class="badge {% if hold.status == 'active' %}badge-yellow{% elif hold.status == 'pending' %}badge-accent{% endif %}">
+                        {{ hold.status|title }}
+                    </span>
+                </div>
+            </div>
+
+            {% if hold.status == 'active' and hold.expires_at %}
+            <div class="hold-countdown">
+                <div class="time" data-countdown="{{ hold.expires_at.isoformat() }}">--:--:--</div>
+                <div class="label" style="font-size: 11px; margin-top: 4px;">Time Remaining</div>
+            </div>
+            {% elif hold.status == 'pending' %}
+            <div class="hold-countdown">
+                <div class="time" style="color:var(--accent); font-size:14px; font-family: var(--font-body) !important;">Awaiting</div>
+                <div class="label" style="font-size: 11px; margin-top: 4px;">Owner Response</div>
+            </div>
+            {% endif %}
+
+            <div class="hold-card-actions">
+                <a href="{{ url_for('student.property_detail', property_id=hold.bed.room.floor.property.id) }}" class="btn btn-secondary btn-sm">View Property</a>
+                {% if hold.status in ['pending', 'active'] %}
+                <button class="btn btn-red btn-sm" onclick="cancelHold({{ hold.id }})">Cancel Hold</button>
+                {% endif %}
             </div>
         </div>
-
-        {% if hold.status == 'active' and hold.expires_at %}
-        <div class="hold-countdown">
-            <div class="time" data-countdown="{{ hold.expires_at.isoformat() }}">--:--:--</div>
-            <div class="label">Time Remaining</div>
+        {% else %}
+        <div class="empty-state" style="margin-bottom:32px;">
+            <div class="empty-state-icon"><i data-lucide="clipboard-list" style="width: 36px; height: 36px;"></i></div>
+            <div class="empty-state-title">No active holds</div>
+            <p class="empty-state-text">Browse properties and place holds on beds you're interested in.</p>
+            <a href="{{ url_for('student.browse') }}" class="btn btn-primary">Browse Properties →</a>
         </div>
-        {% elif hold.status == 'pending' %}
-        <div class="hold-countdown">
-            <div class="time" style="color:var(--accent);font-size:1rem">Awaiting</div>
-            <div class="label">Owner Response</div>
-        </div>
-        {% endif %}
-
-        <div class="hold-card-actions">
-            <a href="{{ url_for('student.property_detail', property_id=hold.bed.room.floor.property.id) }}" class="btn btn-secondary btn-sm">View Property</a>
-            {% if hold.status in ['pending', 'active'] %}
-            <button class="btn btn-red btn-sm" onclick="cancelHold({{ hold.id }})">Cancel Hold</button>
-            {% endif %}
-        </div>
+        {% endfor %}
     </div>
-    {% else %}
-    <div class="empty-state" style="margin-bottom:32px">
-        <div class="empty-state-icon">📋</div>
-        <div class="empty-state-title">No active holds</div>
-        <p class="empty-state-text">Browse properties and place holds on beds you're interested in.</p>
-        <a href="{{ url_for('student.browse') }}" class="btn btn-primary">Browse Properties →</a>
-    </div>
-    {% endfor %}
 
     <!-- Hold History -->
     <div class="divider"></div>
-    <h3 style="margin-bottom:16px">📊 Hold History</h3>
+    <h3 style="margin-bottom:16px; display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="history" style="width: 18px; height: 18px;"></i> Hold History
+    </h3>
     {% if history %}
     <table class="history-table">
         <thead>
@@ -82,13 +94,13 @@
                     {% elif 'cancelled' in h.status %}<span class="badge badge-neutral">Cancelled</span>
                     {% endif %}
                 </td>
-                <td style="color:var(--text-muted);font-size:0.8125rem">{{ h.requested_at.strftime('%b %d, %Y') }}</td>
+                <td style="color:var(--text-muted); font-size:12px;">{{ h.requested_at.strftime('%b %d, %Y') }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     {% else %}
-    <p class="text-secondary">No history yet.</p>
+    <p class="text-secondary" style="font-size: 13px;">No history yet.</p>
     {% endif %}
 </div>
 {% endblock %}

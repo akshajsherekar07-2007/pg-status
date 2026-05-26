@@ -17,16 +17,16 @@ function updateBedTile(bedId, newStatus, data) {
     // Update icon
     const iconEl = tile.querySelector('.bed-tile-icon');
     if (iconEl) {
-        if (newStatus === 'green') iconEl.textContent = '🛏️';
-        else if (newStatus === 'yellow') iconEl.textContent = '⏳';
-        else iconEl.textContent = '🔒';
+        if (newStatus === 'green') iconEl.innerHTML = '<i data-lucide="bed" style="width: 24px; height: 24px; display: inline-block;"></i>';
+        else if (newStatus === 'yellow') iconEl.innerHTML = '<i data-lucide="clock" style="width: 24px; height: 24px; display: inline-block;"></i>';
+        else iconEl.innerHTML = '<i data-lucide="lock" style="width: 24px; height: 24px; display: inline-block;"></i>';
     }
 
     // Update status text
     const statusEl = tile.querySelector('.bed-tile-status');
     if (statusEl) {
         if (newStatus === 'green') statusEl.textContent = 'Vacant';
-        else if (newStatus === 'yellow') statusEl.textContent = 'Under Looking';
+        else if (newStatus === 'yellow') statusEl.textContent = 'On Hold';
         else statusEl.textContent = 'Occupied';
     }
 
@@ -35,12 +35,12 @@ function updateBedTile(bedId, newStatus, data) {
     if (newStatus === 'yellow' && data && data.hold_expires_at) {
         if (countdownEl) {
             countdownEl.dataset.countdown = data.hold_expires_at;
-            countdownEl.textContent = '⏱ ' + formatCountdown(data.hold_expires_at);
+            countdownEl.textContent = formatCountdown(data.hold_expires_at);
         } else {
             const cdDiv = document.createElement('div');
             cdDiv.className = 'countdown';
             cdDiv.dataset.countdown = data.hold_expires_at;
-            cdDiv.textContent = '⏱ ' + formatCountdown(data.hold_expires_at);
+            cdDiv.textContent = formatCountdown(data.hold_expires_at);
             tile.insertBefore(cdDiv, tile.querySelector('.bed-tile-action'));
         }
     } else if (countdownEl && newStatus !== 'yellow') {
@@ -72,6 +72,10 @@ function updateBedTile(bedId, newStatus, data) {
     // Animation on change
     tile.style.transform = 'scale(1.05)';
     setTimeout(() => { tile.style.transform = ''; }, 300);
+
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 
     // Update appState
     if (typeof appState !== 'undefined') {

@@ -7,7 +7,7 @@
 {% block content %}
 <div class="container">
     <!-- Header -->
-    <div class="property-detail-header">
+    <div class="property-detail-header" style="margin-bottom: var(--space-lg);">
         <div class="property-detail-title">
             <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
                 <span class="badge badge-accent">{{ property.property_type }}</span>
@@ -16,13 +16,15 @@
                 {% endif %}
             </div>
             <h1>{{ property.name }}</h1>
-            <p class="text-secondary" style="font-size:1rem">📍 {{ property.address_line }}, {{ property.locality }}, {{ property.city }} {{ property.pincode }}</p>
+            <p class="text-secondary" style="font-size:14px; display: flex; align-items: center; gap: 4px; margin-top: 4px;">
+                <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i> {{ property.address_line }}, {{ property.locality }}, {{ property.city }} {{ property.pincode }}
+            </p>
         </div>
         <div class="owner-mini-card">
             <div class="avatar">{{ property.owner.full_name[0] }}</div>
             <div>
-                <div style="font-weight:600;font-size:0.875rem">{{ property.owner.full_name }}</div>
-                <div style="font-size:0.75rem;color:var(--text-muted)">Property Owner</div>
+                <div style="font-weight:500;font-size:13px">{{ property.owner.full_name }}</div>
+                <div style="font-size:11px;color:var(--text-muted)">Property Owner</div>
             </div>
         </div>
     </div>
@@ -37,14 +39,16 @@
     <!-- Overview Tab -->
     <div class="tab-content" id="content-overview" style="display:none">
         <div class="card" style="margin-bottom:24px">
-            <h3 style="margin-bottom:16px">Description</h3>
+            <h3 style="margin-bottom:12px">Description</h3>
             <p>{{ property.description or 'No description provided.' }}</p>
         </div>
 
-        <h3 style="margin-bottom:16px">Amenities</h3>
+        <h3 style="margin-bottom:12px">Amenities</h3>
         <div class="amenities-grid" style="margin-bottom:24px">
             {% for amenity in property.amenities %}
-            <div class="amenity-item">✓ {{ amenity.name }}</div>
+            <div class="amenity-item" style="display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="check" style="width: 14px; height: 14px; color: var(--green);"></i> {{ amenity.name }}
+            </div>
             {% else %}
             <p class="text-secondary">No amenities listed.</p>
             {% endfor %}
@@ -57,7 +61,7 @@
             <!-- Status Legend -->
             <div class="status-legend" style="margin-bottom:16px">
                 <div class="status-legend-item"><div class="status-dot status-dot-green"></div>Vacant</div>
-                <div class="status-legend-item"><div class="status-dot status-dot-yellow"></div>Under Looking</div>
+                <div class="status-legend-item"><div class="status-dot status-dot-yellow"></div>On Hold</div>
                 <div class="status-legend-item"><div class="status-dot status-dot-red"></div>Occupied</div>
             </div>
 
@@ -76,30 +80,45 @@
                 {% for room in floor.rooms %}
                 <div class="room-card" style="margin-bottom:16px">
                     <div class="room-header">
-                        <div class="room-title">
-                            🚪 Room {{ room.room_number }} · {{ room.sharing_type }}-Sharing · ₹{{ '{:,}'.format(room.rent_per_bed) }}/bed
+                        <div class="room-title" style="display: flex; align-items: center; gap: 6px;">
+                            <i data-lucide="door-closed" style="width: 16px; height: 16px; color: var(--text-secondary);"></i>
+                            <span>Room {{ room.room_number }} · {{ room.sharing_type }}-Sharing · ₹{{ '{:,}'.format(room.rent_per_bed) }}/bed</span>
                         </div>
                         <div class="room-meta">
-                            {% if room.has_ac %}<span class="room-meta-item">❄️ AC</span>{% endif %}
-                            {% if room.has_attached_bath %}<span class="room-meta-item">🚿 Attached Bath</span>{% endif %}
+                            {% if room.has_ac %}
+                            <span class="room-meta-item" style="display: flex; align-items: center; gap: 4px;">
+                                <i data-lucide="wind" style="width: 12px; height: 12px;"></i> AC
+                            </span>
+                            {% endif %}
+                            {% if room.has_attached_bath %}
+                            <span class="room-meta-item" style="display: flex; align-items: center; gap: 4px;">
+                                <i data-lucide="bath" style="width: 12px; height: 12px;"></i> Attached Bath
+                            </span>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="bed-tiles">
                         {% for bed in room.beds %}
                         <div class="bed-tile bed-{{ bed.status }}" id="bed-tile-{{ bed.id }}" data-bed-id="{{ bed.id }}" data-status="{{ bed.status }}">
                             <div class="bed-tile-icon">
-                                {% if bed.status == 'green' %}🛏️{% elif bed.status == 'yellow' %}⏳{% else %}🔒{% endif %}
+                                {% if bed.status == 'green' %}
+                                <i data-lucide="bed" style="width: 24px; height: 24px; display: inline-block;"></i>
+                                {% elif bed.status == 'yellow' %}
+                                <i data-lucide="clock" style="width: 24px; height: 24px; display: inline-block;"></i>
+                                {% else %}
+                                <i data-lucide="lock" style="width: 24px; height: 24px; display: inline-block;"></i>
+                                {% endif %}
                             </div>
                             <div class="bed-tile-label">{{ bed.bed_label }}</div>
                             <div class="bed-tile-status">
-                                {% if bed.status == 'green' %}Vacant{% elif bed.status == 'yellow' %}Under Looking{% else %}Occupied{% endif %}
+                                {% if bed.status == 'green' %}Vacant{% elif bed.status == 'yellow' %}On Hold{% else %}Occupied{% endif %}
                             </div>
 
                             {% if bed.status == 'yellow' %}
                             {% set active_hold = bed.get_active_hold() %}
                             {% if active_hold %}
                             <div class="countdown" data-countdown="{{ active_hold.expires_at.isoformat() }}">
-                                ⏱ Calculating...
+                                Calculating...
                             </div>
                             {% endif %}
                             {% elif bed.status == 'red' and bed.occupied_since %}
@@ -115,7 +134,7 @@
                             {% elif bed.status == 'green' and bed.id in held_bed_ids %}
                             <div class="bed-tile-info">You have a hold here</div>
                             {% elif bed.status == 'green' and active_hold_count >= 3 %}
-                            <div class="bed-tile-info text-yellow" style="font-size:0.6875rem">Max holds reached</div>
+                            <div class="bed-tile-info text-yellow" style="font-size:11px">Max holds reached</div>
                             {% endif %}
                         </div>
                         {% endfor %}
@@ -133,14 +152,14 @@
         {% if media_list %}
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
             {% for media in media_list %}
-            <div style="border-radius:12px;overflow:hidden;aspect-ratio:4/3;background:var(--bg-elevated)">
+            <div style="border-radius:12px;overflow:hidden;aspect-ratio:4/3;background:var(--bg-hover); border: var(--border-width) solid var(--border);">
                 <img src="{{ url_for('static', filename=media.file_path) }}" alt="Property photo" loading="lazy" style="width:100%;height:100%;object-fit:cover">
             </div>
             {% endfor %}
         </div>
         {% else %}
         <div class="empty-state">
-            <div class="empty-state-icon">📷</div>
+            <div class="empty-state-icon"><i data-lucide="camera" style="width: 36px; height: 36px;"></i></div>
             <div class="empty-state-title">No photos uploaded yet</div>
         </div>
         {% endif %}
@@ -157,10 +176,12 @@
                 <div class="modal-close" onclick="closeHoldModal()">✕</div>
             </div>
             <div class="modal-body">
-                <p id="hold-modal-subtitle" style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:20px"></p>
-                <p style="font-size:0.8125rem;color:var(--yellow);margin-bottom:20px">⚠️ You'll be notified instantly if this bed is taken</p>
+                <p id="hold-modal-subtitle" style="font-size:13px;color:var(--text-secondary);margin-bottom:16px"></p>
+                <p style="font-size:12px;color:var(--yellow-text);margin-bottom:20px; display: flex; align-items: center; gap: 4px;">
+                    <i data-lucide="alert-triangle" style="width: 14px; height: 14px;"></i> You'll be notified instantly if this bed is taken
+                </p>
 
-                <label style="font-size:0.8125rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;display:block">Hold Duration</label>
+                <label style="margin-bottom:8px;display:block">Hold Duration</label>
                 <div class="chip-group" id="duration-chips" style="margin-bottom:16px">
                     <div class="chip" onclick="selectDuration(1)">1 Day</div>
                     <div class="chip" onclick="selectDuration(2)">2 Days</div>
@@ -168,10 +189,10 @@
                     <div class="chip" onclick="selectDuration(5)">5 Days</div>
                     <div class="chip" onclick="selectDuration(7)">7 Days</div>
                 </div>
-                <p id="hold-expiry-preview" style="font-size:0.8125rem;color:var(--text-secondary)"></p>
+                <p id="hold-expiry-preview" style="font-size:12px;color:var(--text-secondary)"></p>
 
                 <div style="margin-top:16px;display:flex;align-items:center;gap:8px">
-                    <span style="font-size:0.8125rem;color:var(--text-secondary)">Your reliability score:</span>
+                    <span style="font-size:12px;color:var(--text-secondary)">Your reliability score:</span>
                     <span class="badge badge-green">{{ current_user.reliability_score }}/100</span>
                 </div>
             </div>
@@ -189,11 +210,11 @@
             </div>
             <div class="modal-body">
                 <div class="card" style="margin-bottom:16px;background:var(--bg-base)">
-                    <div id="hold-summary" style="font-size:0.875rem"></div>
+                    <div id="hold-summary" style="font-size:13px"></div>
                 </div>
                 <div class="checkbox-group" style="margin-top:16px">
                     <input type="checkbox" id="hold-confirm-check">
-                    <label for="hold-confirm-check" style="text-transform:none;font-size:0.8125rem;color:var(--text-secondary);font-weight:400">I intend to visit this property before my hold expires</label>
+                    <label for="hold-confirm-check" style="text-transform:none;font-size:12px;color:var(--text-secondary);font-weight:400">I intend to visit this property before my hold expires</label>
                 </div>
             </div>
             <div class="modal-footer">
@@ -210,7 +231,7 @@
 <script src="{{ url_for('static', filename='js/hold-modal.js') }}"></script>
 <script>
     // Join property SocketIO room
-    if (typeof socket !== 'undefined') {
+    if (typeof socket !== 'undefined' && socket) {
         socket.emit('join_property', {property_id: {{ property.id }}});
     }
 
@@ -220,6 +241,9 @@
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById('content-' + tab).style.display = 'block';
         document.getElementById('tab-' + tab).classList.add('active');
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
     }
 
     // Floor selector

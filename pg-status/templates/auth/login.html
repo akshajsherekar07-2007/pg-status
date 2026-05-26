@@ -4,34 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login — StaySync</title>
+    <!-- Google Fonts: Inter weights 400 and 500 only -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,100..1000&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     <div class="auth-page">
-        <div class="auth-left">
-            <div class="floating-orbs">
-                <div class="orb orb-green"></div>
-                <div class="orb orb-yellow"></div>
-                <div class="orb orb-red"></div>
-            </div>
-            <div class="auth-left-content">
-                <h2>Welcome Back</h2>
-                <p>Your live accommodation dashboard awaits. Check holds, manage properties, and stay in sync.</p>
+        <div class="auth-left" style="background: var(--bg-hover); border-right: var(--border-width) solid var(--border); display: flex; align-items: center; justify-content: center;">
+            <div class="auth-left-content" style="max-width: 320px; text-align: left; padding: 24px;">
+                <h2 style="font-size: 22px; font-weight: 500; margin-bottom: 12px; color: var(--text-primary);">Welcome Back</h2>
+                <p style="font-size: 14px; line-height: 1.6; color: var(--text-secondary);">Your live accommodation dashboard awaits. Check holds, manage properties, and stay in sync.</p>
             </div>
         </div>
         <div class="auth-right">
             <div class="auth-form-container">
                 <div class="auth-form-header">
-                    <a href="/" class="nav-logo" style="margin-bottom:16px;display:inline-flex">Stay<span>Sync</span></a>
-                    <h1>Log In</h1>
-                    <p>Access your StaySync account.</p>
+                    <a href="/" class="nav-logo" style="margin-bottom: 24px; display: inline-flex; align-items: center; gap: 8px;">
+                        <div style="background: var(--accent); color: #FFFFFF; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i data-lucide="home" style="width: 16px; height: 16px; stroke-width: 2.5;"></i>
+                        </div>
+                        <span style="font-family: var(--font-display); font-weight: 500; font-size: 16px; letter-spacing: -0.01em; color: var(--text-primary);">StaySync</span>
+                    </a>
+                    <h1 style="font-size: 22px; font-weight: 500; margin-bottom: 4px;">Log In</h1>
+                    <p style="font-size: 13px; color: var(--text-secondary);">Access your StaySync account.</p>
                 </div>
 
                 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -57,27 +63,35 @@
                         <input class="input" type="password" id="password" name="password" placeholder="Enter your password" required>
                     </div>
 
-                    <div class="remember-row">
+                    <div class="remember-row" style="margin-top: 4px;">
                         <div class="checkbox-group">
                             <input type="checkbox" id="remember" name="remember">
-                            <label for="remember" style="text-transform:none;font-size:0.875rem;color:var(--text-secondary);font-weight:400">Remember me</label>
+                            <label for="remember" style="text-transform:none;font-size:13px;color:var(--text-secondary);font-weight:400">Remember me</label>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-lg btn-full auth-submit">Log In →</button>
+                    <button type="submit" class="btn btn-primary btn-lg btn-full auth-submit" style="margin-top: 12px; border-radius: 9999px;">Log In →</button>
                 </form>
 
-                <div class="auth-footer">
-                    Don't have an account? <a href="{{ url_for('auth.register') }}">Create one</a>
+                <div class="auth-footer" style="margin-top: 16px; font-size: 13px; color: var(--text-secondary);">
+                    Don't have an account? <a href="{{ url_for('auth.register') }}" style="color: var(--accent); font-weight: 500;">Create one</a>
                 </div>
 
-                <div style="margin-top:24px;padding:16px;background:var(--bg-surface);border-radius:12px;border:1px solid var(--border)">
-                    <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;font-weight:600">Demo Accounts</p>
-                    <p style="font-size:0.8125rem;color:var(--text-secondary);margin-bottom:4px">👤 Student: arjun@student.com / student123</p>
-                    <p style="font-size:0.8125rem;color:var(--text-secondary)">🏠 Owner: rajesh@staysync.com / owner123</p>
+                <div style="margin-top:24px;padding:16px;background:var(--bg-surface);border-radius:12px;border:var(--border-width) solid var(--border)">
+                    <p style="font-size:10px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;font-weight:500">Demo Accounts</p>
+                    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">👤 Student: arjun@student.com / student123</p>
+                    <p style="font-size:13px;color:var(--text-secondary)">🏠 Owner: rajesh@staysync.com / owner123</p>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
 </body>
 </html>

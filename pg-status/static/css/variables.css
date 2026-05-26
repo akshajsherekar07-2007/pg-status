@@ -1,65 +1,72 @@
 /* StaySync Design System — CSS Variables */
 :root {
-    /* Backgrounds */
-    --bg-base: #0a0e1a;
-    --bg-surface: #111828;
-    --bg-elevated: #1a2236;
-    --bg-hover: #232d42;
+    /* Backgrounds: Pure white cards on a very subtle warm-gray page */
+    --bg-base: #F8F8F7;
+    --bg-surface: #FFFFFF;
+    --bg-elevated: #FFFFFF;
+    --bg-hover: #F4F4F5;
 
-    /* Accent */
-    --accent: #5b8fff;
-    --accent-hover: #4a7fff;
-    --accent-dim: rgba(91, 143, 255, 0.12);
+    /* Accent: Brand Forest Green (aligned with reference screenshots) */
+    --accent: #1D5245;
+    --accent-hover: #143A31;
+    --accent-dim: #E8EFEF;
+    --accent-focus: rgba(29, 82, 69, 0.15);
 
-    /* Status Colors */
-    --green: #22c55e;
-    --green-dim: rgba(34, 197, 94, 0.10);
-    --green-border: rgba(34, 197, 94, 0.30);
+    /* Status Colors (Light tinted 50-stop fill + dark 800-stop text) */
+    --green: #1D9E75;
+    --green-dim: #EBFDF5;
+    --green-border: rgba(29, 158, 117, 0.3);
+    --green-text: #0F5F45;
 
-    --yellow: #f59e0b;
-    --yellow-dim: rgba(245, 158, 11, 0.10);
-    --yellow-border: rgba(245, 158, 11, 0.30);
+    --yellow: #EF9F27;
+    --yellow-dim: #FFFBEB;
+    --yellow-border: rgba(239, 159, 39, 0.3);
+    --yellow-text: #854E0E;
 
-    --red: #ef4444;
-    --red-dim: rgba(239, 68, 68, 0.10);
-    --red-border: rgba(239, 68, 68, 0.30);
+    --red: #E24B4A;
+    --red-dim: #FEF2F2;
+    --red-border: rgba(226, 75, 74, 0.3);
+    --red-text: #991B1B;
 
-    /* Text */
-    --text-primary: #e8eaf0;
-    --text-secondary: #8b93a9;
-    --text-muted: #5a6278;
+    /* Neutrals: Slate gray scale */
+    --text-primary: #18181B;
+    --text-secondary: #52525B;
+    --text-muted: #71717A;
 
-    /* Borders & Shadows */
-    --border: rgba(255, 255, 255, 0.07);
-    --border-strong: rgba(255, 255, 255, 0.12);
+    /* Borders & Shadows (No shadows, flat white cards with 0.5px borders) */
+    --border: #E4E4E7;
+    --border-strong: #A1A1AA;
+    --border-width: 0.5px;
+    
     --radius-sm: 8px;
     --radius-md: 12px;
-    --radius-lg: 16px;
-    --radius-xl: 20px;
+    --radius-lg: 12px;
+    --radius-xl: 12px;
     --radius-full: 9999px;
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+    
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
 
     /* Transitions */
-    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition: all 0.2s ease-out;
+    --transition-slow: all 0.4s ease-out;
 
-    /* Typography */
-    --font-display: 'Syne', sans-serif;
-    --font-body: 'DM Sans', sans-serif;
+    /* Typography (System fonts) */
+    --font-display: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
-    /* Spacing */
-    --space-xs: 4px;
-    --space-sm: 8px;
+    /* Spacing: Tight 8/12/16/24px scale */
+    --space-xs: 8px;
+    --space-sm: 12px;
     --space-md: 16px;
     --space-lg: 24px;
-    --space-xl: 32px;
-    --space-2xl: 48px;
-    --space-3xl: 64px;
+    --space-xl: 48px;
+    --space-2xl: 64px;
+    --space-3xl: 80px;
 
     /* Layout */
-    --nav-height: 64px;
-    --sidebar-width: 280px;
+    --nav-height: 56px;
+    --sidebar-width: 260px;
     --container-max: 1200px;
 }

@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="StaySync — Know Before You Go. Book Before It's Gone. Real-time student accommodation platform with live bed availability.">
-    <title>StaySync — Know Before You Go. Book Before It's Gone.</title>
+    <meta name="description" content="StaySync — Find a place to land, not just a place to stay. Real-time student accommodation platform with live bed availability.">
+    <title>StaySync — Find a place to land, not just a place to stay.</title>
+    
+    <!-- Google Fonts: Inter weights 400 and 500 only -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
@@ -15,12 +19,95 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bed-grid.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        .live-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--bg-surface);
+            border: var(--border-width) solid var(--border-strong);
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            text-transform: uppercase;
+        }
+        .live-tag::before {
+            content: "";
+            width: 5px;
+            height: 5px;
+            background: var(--green);
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse-green-slow 2s infinite ease-in-out;
+        }
+        
+        /* Overlapping Image Collage */
+        .collage-container {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            max-width: 440px;
+            margin-left: auto;
+        }
+        .collage-large {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 20px;
+            border: var(--border-width) solid var(--border-strong);
+        }
+        .collage-small {
+            position: absolute;
+            bottom: -24px;
+            left: -24px;
+            width: 140px;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 20px;
+            border: 2px solid var(--bg-base);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        .collage-label {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 500;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .collage-label::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            background: var(--green);
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse-green-slow 2s infinite ease-in-out;
+        }
+    </style>
 </head>
 <body>
     <!-- Nav -->
     <nav class="nav">
         <div class="nav-inner">
-            <a href="/" class="nav-logo">Stay<span>Sync</span></a>
+            <a href="/" class="nav-logo" style="display: flex; align-items: center; gap: 8px;">
+                <div style="background: var(--accent); color: #FFFFFF; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i data-lucide="home" style="width: 16px; height: 16px; stroke-width: 2.5;"></i>
+                </div>
+                <span style="font-family: var(--font-display); font-weight: 500; font-size: 16px; letter-spacing: -0.01em; color: var(--text-primary);">StaySync</span>
+            </a>
             <div class="landing-nav">
                 <div class="landing-nav-links">
                     <a href="#how-it-works" class="nav-link">How It Works</a>
@@ -29,10 +116,10 @@
                 </div>
                 <div class="nav-actions">
                     {% if current_user is defined and current_user.is_authenticated %}
-                    <a href="{{ url_for('auth.redirect_home') }}" class="btn btn-primary btn-sm">Go to Dashboard</a>
+                    <a href="{{ url_for('auth.redirect_home') }}" class="btn btn-primary btn-sm" style="border-radius: 9999px;">Go to Dashboard</a>
                     {% else %}
                     <a href="{{ url_for('auth.login') }}" class="btn btn-ghost btn-sm">Login</a>
-                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">Sign Up</a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm" style="border-radius: 9999px; padding: 6px 16px;">Sign in</a>
                     {% endif %}
                 </div>
             </div>
@@ -40,45 +127,116 @@
     </nav>
 
     <!-- Hero -->
-    <section class="hero">
-        <div class="hero-glow"></div>
+    <section class="hero" style="background: var(--bg-base); padding: var(--space-xl) 0;">
         <div class="container">
             <div class="hero-grid">
-                <div class="hero-content animate-fadeIn">
-                    <h1>Know Before You Go.<br><span class="accent-text">Book Before It's Gone.</span></h1>
-                    <p class="hero-subtitle">Real-time bed availability for PGs, hostels & flats. See live status, place holds instantly, and never lose a room without knowing.</p>
-                    <div class="hero-ctas">
-                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Find Your Stay →</a>
-                        <a href="#how-it-works" class="btn btn-secondary btn-lg">See How It Works</a>
+                <div class="hero-content">
+                    <div class="live-tag">Live availability</div>
+                    <h1 style="font-size: 38px; line-height: 1.2; font-weight: 500; letter-spacing: -0.02em; margin-bottom: var(--space-sm);">
+                        Find a place to land,<br>not just a place to stay.
+                    </h1>
+                    <p class="hero-subtitle" style="font-size: 14px; line-height: 1.7; color: var(--text-secondary); margin-bottom: 24px;">
+                        StaySync is the live accommodation network for students — browse real-time vacancy of PGs, hostels and flats, apply instantly, and move in with confidence.
+                    </p>
+                    <div class="hero-ctas" style="margin-bottom: 28px;">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg" style="border-radius: 9999px; padding: 12px 28px; display: inline-flex; align-items: center; gap: 8px;">
+                            I'm a student <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                        </a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-secondary btn-lg" style="border-radius: 9999px; padding: 12px 28px; color: var(--accent); border-color: var(--accent); display: inline-flex; align-items: center; gap: 8px;">
+                            List your property <i data-lucide="building-2" style="width: 16px; height: 16px;"></i>
+                        </a>
                     </div>
-                    <div class="hero-legend">
-                        <div class="hero-legend-item">
-                            <div class="hero-legend-dot green"></div>
-                            <span>Vacant</span>
+                    <div class="hero-legend" style="display: flex; gap: var(--space-md);">
+                        <div class="hero-legend-item" style="font-size: 13px; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px;">
+                            <i data-lucide="shield-check" style="width: 16px; height: 16px; color: var(--accent);"></i> Verified listings
                         </div>
-                        <div class="hero-legend-item">
-                            <div class="hero-legend-dot yellow"></div>
-                            <span>Under Looking</span>
-                        </div>
-                        <div class="hero-legend-item">
-                            <div class="hero-legend-dot red"></div>
-                            <span>Occupied</span>
+                        <div class="hero-legend-item" style="font-size: 13px; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px;">
+                            <i data-lucide="bed" style="width: 16px; height: 16px; color: var(--accent);"></i> Live bed status
                         </div>
                     </div>
                 </div>
-                <div class="hero-visual animate-slideUp">
-                    <div class="hero-mockup">
-                        <div class="mockup-header">
-                            <span class="mockup-title">Sunrise Boys PG — Room 101</span>
-                            <span class="mockup-live-badge"><span class="dot"></span>LIVE</span>
-                        </div>
-                        <div class="mockup-beds">
-                            <div class="mockup-bed green">🛏️ Bed A<br><small>Vacant</small></div>
-                            <div class="mockup-bed yellow">⏳ Bed B<br><small>2d 14h left</small></div>
-                            <div class="mockup-bed green">🛏️ Bed C<br><small>Vacant</small></div>
-                            <div class="mockup-bed red">🔒 Bed D<br><small>Occupied</small></div>
-                        </div>
+                <div class="hero-visual">
+                    <div class="collage-container">
+                        <img class="collage-large" src="{{ url_for('static', filename='uploads/hero_room_interior.png') }}" alt="Student Room Interior">
+                        <img class="collage-small" src="{{ url_for('static', filename='uploads/hero_window_exterior.png') }}" alt="Cozy Window Facade">
+                        <div class="collage-label">Live beds across campus</div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Status System & Overview Cards -->
+    <section class="section" id="status" style="background: var(--bg-base); padding-top: var(--space-sm);">
+        <div class="container">
+            <!-- Emojis & Badge Explainer Horizontal Box (Matches Screenshot 3) -->
+            <div style="display: flex; gap: var(--space-md); padding: var(--space-lg); background: var(--bg-surface); border: var(--border-width) solid var(--border); border-radius: var(--radius-md); margin-bottom: 32px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 220px; display: flex; gap: var(--space-sm); align-items: flex-start;">
+                    <div style="background: var(--green-dim); color: var(--green-text); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i data-lucide="bed" style="width: 18px; height: 18px;"></i>
+                    </div>
+                    <div>
+                        <span class="badge badge-green" style="font-size: 9px; margin-bottom: 4px;">VACANT</span>
+                        <h4 style="margin: 2px 0 4px; font-size: 14px; font-weight: 500;">Ready for you</h4>
+                        <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin: 0;">Apply and move in the same week.</p>
+                    </div>
+                </div>
+                <div style="width: 1px; background: var(--border); align-self: stretch;"></div>
+                <div style="flex: 1; min-width: 220px; display: flex; gap: var(--space-sm); align-items: flex-start;">
+                    <div style="background: var(--yellow-dim); color: var(--yellow-text); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i data-lucide="bed" style="width: 18px; height: 18px;"></i>
+                    </div>
+                    <div>
+                        <span class="badge badge-yellow" style="font-size: 9px; margin-bottom: 4px;">UNDER CONSIDERATION</span>
+                        <h4 style="margin: 2px 0 4px; font-size: 14px; font-weight: 500;">Pending decision</h4>
+                        <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin: 0;">Another student is deciding — owners can flag immediate offers.</p>
+                    </div>
+                </div>
+                <div style="width: 1px; background: var(--border); align-self: stretch;"></div>
+                <div style="flex: 1; min-width: 220px; display: flex; gap: var(--space-sm); align-items: flex-start;">
+                    <div style="background: var(--red-dim); color: var(--red-text); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i data-lucide="bed" style="width: 18px; height: 18px;"></i>
+                    </div>
+                    <div>
+                        <span class="badge badge-red" style="font-size: 9px; margin-bottom: 4px;">OCCUPIED</span>
+                        <h4 style="margin: 2px 0 4px; font-size: 14px; font-weight: 500;">Currently taken</h4>
+                        <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin: 0;">We'll notify you if it opens up again.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two Columns Cards: Student & Owner Roles (Matches Screenshot 3) -->
+            <div class="grid grid-2" style="gap: var(--space-lg); margin-bottom: 32px;">
+                <!-- For Students -->
+                <div class="card" style="padding: var(--space-lg); display: flex; flex-direction: column; justify-content: space-between; min-height: 260px; position: relative;">
+                    <div>
+                        <div style="background: var(--accent-dim); color: var(--accent); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-md);">
+                            <i data-lucide="graduation-cap" style="width: 20px; height: 20px;"></i>
+                        </div>
+                        <h2 style="font-size: 20px; font-weight: 500; margin-bottom: 8px;">For students</h2>
+                        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--space-md);">
+                            Browse verified PGs, hostels & flats with bed-level accuracy. Apply in one tap, track your status, and get notified when owners open immediate slots.
+                        </p>
+                    </div>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="width: fit-content; border-radius: 9999px; padding: 10px 24px; display: inline-flex;">Browse accommodations</a>
+                </div>
+
+                <!-- For Owners -->
+                <div class="card" style="padding: var(--space-lg); display: flex; flex-direction: column; justify-content: space-between; min-height: 260px; position: relative; overflow: hidden;">
+                    <div style="position: relative; z-index: 2;">
+                        <div style="background: var(--accent-dim); color: var(--accent); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-md);">
+                            <i data-lucide="building" style="width: 20px; height: 20px;"></i>
+                        </div>
+                        <h2 style="font-size: 20px; font-weight: 500; margin-bottom: 8px;">For property owners</h2>
+                        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--space-md); max-width: 80%;">
+                            Manage floors, rooms and individual beds. Announce immediate availability to shortlisted students. Keep occupancy at 100%.
+                        </p>
+                    </div>
+                    <div style="position: relative; z-index: 2;">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-secondary" style="width: fit-content; border-radius: 9999px; padding: 10px 24px; color: var(--accent); border-color: var(--accent); display: inline-flex;">List my property</a>
+                    </div>
+                    <!-- Overlapping Sunny Window graphic -->
+                    <img src="{{ url_for('static', filename='uploads/hero_window_exterior.png') }}" style="position: absolute; bottom: 0; right: 0; width: 100px; height: 100px; object-fit: cover; border-top-left-radius: 16px; border-left: var(--border-width) solid var(--border); border-top: var(--border-width) solid var(--border); pointer-events: none; opacity: 0.9;" alt="">
                 </div>
             </div>
         </div>
@@ -94,37 +252,37 @@
             <div class="hiw-grid stagger">
                 <div class="hiw-card">
                     <div class="hiw-step">Step 01</div>
-                    <div class="hiw-icon">🔍</div>
+                    <div class="hiw-icon"><i data-lucide="search" style="width: 18px; height: 18px;"></i></div>
                     <h4>Browse Properties</h4>
                     <p>Search PGs, hostels, and flats with live availability filters.</p>
                 </div>
                 <div class="hiw-card">
                     <div class="hiw-step">Step 02</div>
-                    <div class="hiw-icon">🛏️</div>
+                    <div class="hiw-icon"><i data-lucide="bed" style="width: 18px; height: 18px;"></i></div>
                     <h4>Check Bed Availability</h4>
                     <p>See real-time color-coded bed status — green, yellow, or red.</p>
                 </div>
                 <div class="hiw-card">
                     <div class="hiw-step">Step 03</div>
-                    <div class="hiw-icon">⏳</div>
+                    <div class="hiw-icon"><i data-lucide="clock" style="width: 18px; height: 18px;"></i></div>
                     <h4>Place a Hold</h4>
                     <p>Request 1-7 day holds on vacant beds while you decide.</p>
                 </div>
                 <div class="hiw-card">
                     <div class="hiw-step">Step 04</div>
-                    <div class="hiw-icon">🔔</div>
+                    <div class="hiw-icon"><i data-lucide="bell" style="width: 18px; height: 18px;"></i></div>
                     <h4>Get Instant Updates</h4>
                     <p>Real-time notifications on hold acceptance, expiry, or room changes.</p>
                 </div>
                 <div class="hiw-card">
                     <div class="hiw-step">Step 05</div>
-                    <div class="hiw-icon">🏠</div>
+                    <div class="hiw-icon"><i data-lucide="home" style="width: 18px; height: 18px;"></i></div>
                     <h4>Visit & Confirm</h4>
                     <p>Visit the property during your hold window. All agreements happen offline.</p>
                 </div>
                 <div class="hiw-card">
                     <div class="hiw-step">Step 06</div>
-                    <div class="hiw-icon">✅</div>
+                    <div class="hiw-icon"><i data-lucide="check-circle-2" style="width: 18px; height: 18px;"></i></div>
                     <h4>Move In</h4>
                     <p>Owner confirms booking after agreement. Bed turns red — it's yours!</p>
                 </div>
@@ -132,67 +290,8 @@
         </div>
     </section>
 
-    <!-- Status Explainer -->
-    <section class="section" id="status">
-        <div class="container">
-            <div class="section-header">
-                <h2>The Status System</h2>
-                <p>Every bed has a live status that updates instantly across all devices.</p>
-            </div>
-            <div class="status-cards stagger">
-                <div class="status-explainer-card status-card-green">
-                    <div class="status-icon-large">🟢</div>
-                    <h4>Vacant</h4>
-                    <p class="text-secondary">Available for hold requests. Place your hold now.</p>
-                </div>
-                <div class="status-explainer-card status-card-yellow">
-                    <div class="status-icon-large">🟡</div>
-                    <h4>Under Looking</h4>
-                    <p class="text-secondary">A student is considering this bed. Countdown active.</p>
-                </div>
-                <div class="status-explainer-card status-card-red">
-                    <div class="status-icon-large">🔴</div>
-                    <h4>Occupied</h4>
-                    <p class="text-secondary">Booked after offline agreement. Not available.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Problem vs Solution -->
-    <section class="section">
-        <div class="container">
-            <div class="section-header">
-                <h2>Why Students Need StaySync</h2>
-                <p>The room hunt is broken. We're fixing it with transparency.</p>
-            </div>
-            <div class="pvs-grid">
-                <div class="pvs-card problem">
-                    <h3>✗ Without StaySync</h3>
-                    <div class="pvs-list">
-                        <div class="pvs-item"><span class="icon">❌</span><span>Visit 10+ properties with no idea what's available</span></div>
-                        <div class="pvs-item"><span class="icon">❌</span><span>Owners give verbal promises that don't hold</span></div>
-                        <div class="pvs-item"><span class="icon">❌</span><span>Rooms get taken while you're still deciding</span></div>
-                        <div class="pvs-item"><span class="icon">❌</span><span>Zero notification when your room is gone</span></div>
-                        <div class="pvs-item"><span class="icon">❌</span><span>Wasted time, money, and energy</span></div>
-                    </div>
-                </div>
-                <div class="pvs-card solution">
-                    <h3>✓ With StaySync</h3>
-                    <div class="pvs-list">
-                        <div class="pvs-item"><span class="icon">✅</span><span>See live availability before visiting</span></div>
-                        <div class="pvs-item"><span class="icon">✅</span><span>Structured holds with countdown timers</span></div>
-                        <div class="pvs-item"><span class="icon">✅</span><span>Instant alerts if a room status changes</span></div>
-                        <div class="pvs-item"><span class="icon">✅</span><span>Reliability score builds your reputation</span></div>
-                        <div class="pvs-item"><span class="icon">✅</span><span>3x faster room decisions</span></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Stats -->
-    <section class="section">
+    <section class="section" style="background: var(--bg-base);">
         <div class="container">
             <div class="stats-row stagger">
                 <div class="stat-card">
@@ -208,7 +307,7 @@
                     <div class="stat-label">Notification Rate</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" style="color: #a78bfa;">3x</div>
+                    <div class="stat-value text-accent">3x</div>
                     <div class="stat-label">Faster Decisions</div>
                 </div>
             </div>
@@ -257,22 +356,16 @@
         </div>
     </section>
 
-    <!-- For Owners CTA -->
-    <section class="section" id="for-owners">
-        <div class="container">
-            <div class="cta-section">
-                <h2>Property Owner or Manager?</h2>
-                <p>List your PG, hostel, or flat on StaySync. Manage bed availability in real time, respond to hold requests, and fill vacancies faster.</p>
-                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">List Your Property →</a>
-            </div>
-        </div>
-    </section>
-
     <!-- Footer -->
     <footer class="landing-footer">
         <div class="container">
             <div class="footer-inner">
-                <a href="/" class="nav-logo">Stay<span>Sync</span></a>
+                <a href="/" class="nav-logo" style="display: flex; align-items: center; gap: 8px;">
+                    <div style="background: var(--accent); color: #FFFFFF; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i data-lucide="home" style="width: 16px; height: 16px; stroke-width: 2.5;"></i>
+                    </div>
+                    <span style="font-family: var(--font-display); font-weight: 500; font-size: 16px; letter-spacing: -0.01em; color: var(--text-primary);">StaySync</span>
+                </a>
                 <div class="footer-links">
                     <a href="#how-it-works">How It Works</a>
                     <a href="#status">Status System</a>
@@ -283,5 +376,13 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
 </body>
 </html>

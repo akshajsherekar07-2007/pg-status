@@ -4,31 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register — StaySync</title>
+    <!-- Google Fonts: Inter weights 400 and 500 only -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,100..1000&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     <div class="auth-page">
-        <!-- Left: Animated -->
-        <div class="auth-left">
-            <div class="floating-orbs">
-                <div class="orb orb-green"></div>
-                <div class="orb orb-yellow"></div>
-                <div class="orb orb-red"></div>
-            </div>
-            <div class="auth-left-content">
-                <h2>Know Before You Go</h2>
-                <p>Join StaySync and never lose a room without knowing. Real-time availability, instant holds, and transparent communication.</p>
-                <div class="hero-legend" style="justify-content:center;margin-top:24px">
-                    <div class="hero-legend-item"><div class="hero-legend-dot green" style="width:8px;height:8px"></div><span style="font-size:0.8125rem">Vacant</span></div>
-                    <div class="hero-legend-item"><div class="hero-legend-dot yellow" style="width:8px;height:8px"></div><span style="font-size:0.8125rem">Under Looking</span></div>
-                    <div class="hero-legend-item"><div class="hero-legend-dot red" style="width:8px;height:8px"></div><span style="font-size:0.8125rem">Occupied</span></div>
+        <!-- Left: Branding -->
+        <div class="auth-left" style="background: var(--bg-hover); border-right: var(--border-width) solid var(--border); display: flex; align-items: center; justify-content: center;">
+            <div class="auth-left-content" style="max-width: 320px; text-align: left; padding: 24px;">
+                <h2 style="font-size: 22px; font-weight: 500; margin-bottom: 12px; color: var(--text-primary);">Know Before You Go</h2>
+                <p style="font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 24px;">Join StaySync and never lose a room without knowing. Real-time availability, instant holds, and transparent communication.</p>
+                <div class="hero-legend" style="display: flex; flex-direction: column; gap: var(--space-xs);">
+                    <div class="hero-legend-item" style="display: flex; align-items: center; gap: 8px;">
+                        <span class="status-dot status-dot-green"></span>
+                        <span style="font-size: 13px; color: var(--text-secondary);">Vacant</span>
+                    </div>
+                    <div class="hero-legend-item" style="display: flex; align-items: center; gap: 8px;">
+                        <span class="status-dot status-dot-yellow"></span>
+                        <span style="font-size: 13px; color: var(--text-secondary);">On Hold</span>
+                    </div>
+                    <div class="hero-legend-item" style="display: flex; align-items: center; gap: 8px;">
+                        <span class="status-dot status-dot-red"></span>
+                        <span style="font-size: 13px; color: var(--text-secondary);">Occupied</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -37,9 +47,14 @@
         <div class="auth-right">
             <div class="auth-form-container">
                 <div class="auth-form-header">
-                    <a href="/" class="nav-logo" style="margin-bottom:16px;display:inline-flex">Stay<span>Sync</span></a>
-                    <h1>Create Account</h1>
-                    <p>Start your room search with real-time updates.</p>
+                    <a href="/" class="nav-logo" style="margin-bottom: 24px; display: inline-flex; align-items: center; gap: 8px;">
+                        <div style="background: var(--accent); color: #FFFFFF; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i data-lucide="home" style="width: 16px; height: 16px; stroke-width: 2.5;"></i>
+                        </div>
+                        <span style="font-family: var(--font-display); font-weight: 500; font-size: 16px; letter-spacing: -0.01em; color: var(--text-primary);">StaySync</span>
+                    </a>
+                    <h1 style="font-size: 22px; font-weight: 500; margin-bottom: 4px;">Create Account</h1>
+                    <p style="font-size: 13px; color: var(--text-secondary);">Start your room search with real-time updates.</p>
                 </div>
 
                 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -58,18 +73,18 @@
                     <!-- Role Selector -->
                     <div class="input-group">
                         <label>I am a</label>
-                        <div class="role-selector">
-                            <label class="role-card" id="role-student" onclick="selectRole('student')">
-                                <input type="radio" name="role" value="student" {% if form_data and form_data.get('role') == 'student' %}checked{% endif %}>
-                                <div class="role-icon">🎓</div>
-                                <div class="role-title">Student</div>
-                                <div class="role-desc">Looking for a place to stay</div>
+                        <div class="role-selector" style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xs); margin-top: 4px;">
+                            <label class="role-card" id="role-student" onclick="selectRole('student')" style="border: var(--border-width) solid var(--border); border-radius: var(--radius-sm); padding: 12px; cursor: pointer; text-align: center; transition: var(--transition); display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-surface);">
+                                <input type="radio" name="role" value="student" {% if form_data and form_data.get('role') == 'student' %}checked{% endif %} style="display: none;">
+                                <i data-lucide="graduation-cap" style="width: 20px; height: 20px; color: var(--accent); margin-bottom: 6px;"></i>
+                                <div class="role-title" style="font-size: 13px; font-weight: 500; color: var(--text-primary);">Student</div>
+                                <div class="role-desc" style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">Find a place to stay</div>
                             </label>
-                            <label class="role-card" id="role-owner" onclick="selectRole('owner')">
-                                <input type="radio" name="role" value="owner" {% if form_data and form_data.get('role') == 'owner' %}checked{% endif %}>
-                                <div class="role-icon">🏠</div>
-                                <div class="role-title">Property Owner</div>
-                                <div class="role-desc">List and manage properties</div>
+                            <label class="role-card" id="role-owner" onclick="selectRole('owner')" style="border: var(--border-width) solid var(--border); border-radius: var(--radius-sm); padding: 12px; cursor: pointer; text-align: center; transition: var(--transition); display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-surface);">
+                                <input type="radio" name="role" value="owner" {% if form_data and form_data.get('role') == 'owner' %}checked{% endif %} style="display: none;">
+                                <i data-lucide="building" style="width: 20px; height: 20px; color: var(--accent); margin-bottom: 6px;"></i>
+                                <div class="role-title" style="font-size: 13px; font-weight: 500; color: var(--text-primary);">Property Owner</div>
+                                <div class="role-desc" style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">List & manage stays</div>
                             </label>
                         </div>
                     </div>
@@ -99,11 +114,11 @@
                         <input class="input" type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-lg btn-full auth-submit" id="register-btn">Create Account →</button>
+                    <button type="submit" class="btn btn-primary btn-lg btn-full auth-submit" id="register-btn" style="margin-top: 12px; border-radius: 9999px;">Create Account →</button>
                 </form>
 
-                <div class="auth-footer">
-                    Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a>
+                <div class="auth-footer" style="margin-top: 16px; font-size: 13px; color: var(--text-secondary);">
+                    Already have an account? <a href="{{ url_for('auth.login') }}" style="color: var(--accent); font-weight: 500;">Log in</a>
                 </div>
             </div>
         </div>
@@ -111,13 +126,32 @@
 
     <script>
         function selectRole(role) {
-            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
-            document.getElementById('role-' + role).classList.add('selected');
+            document.querySelectorAll('.role-card').forEach(c => {
+                c.classList.remove('selected');
+                c.style.borderColor = 'var(--border)';
+                c.style.background = 'var(--bg-surface)';
+            });
+            const card = document.getElementById('role-' + role);
+            if (card) {
+                card.classList.add('selected');
+                card.style.borderColor = 'var(--accent)';
+                card.style.background = 'var(--accent-dim)';
+            }
             document.querySelector(`input[value="${role}"]`).checked = true;
         }
-        // Restore selection
-        const checked = document.querySelector('input[name="role"]:checked');
-        if (checked) selectRole(checked.value);
+        
+        // Restore selection on load
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            const checked = document.querySelector('input[name="role"]:checked');
+            if (checked) {
+                selectRole(checked.value);
+            } else {
+                selectRole('student');
+            }
+        });
     </script>
 </body>
 </html>

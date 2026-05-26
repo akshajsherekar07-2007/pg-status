@@ -93,16 +93,21 @@ function showUrgentModal(data) {
     if (!overlay || !body) return;
 
     body.innerHTML = `
-        <div style="text-align:center;padding:20px 0">
-            <div style="font-size:4rem;margin-bottom:16px;animation:pulse 1.5s ease-in-out infinite">🔴</div>
-            <h2 style="color:var(--red);margin-bottom:12px">Room Taken</h2>
-            <p style="color:var(--text-secondary);margin-bottom:8px">A walk-in student took <strong>${data.bed_label}</strong> at <strong>${data.property_name}</strong>.</p>
-            <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:24px">Your reliability score is NOT affected.</p>
-            <a href="/student/browse" class="btn btn-primary btn-lg">Find Similar Properties →</a>
-            <button class="btn btn-ghost" style="margin-top:12px;display:block;width:100%" onclick="document.getElementById('urgent-modal-overlay').classList.remove('active')">Dismiss</button>
+        <div style="text-align:center;padding:24px 0">
+            <div style="display:flex;justify-content:center;margin-bottom:16px;color:var(--red);">
+                <i data-lucide="x-circle" style="width: 48px; height: 48px;"></i>
+            </div>
+            <h3 style="color:var(--red-text);margin-bottom:12px;font-size:18px;font-weight:500;">Room Taken</h3>
+            <p style="color:var(--text-secondary);margin-bottom:8px;font-size:14px;">A walk-in student took <strong>${data.bed_label}</strong> at <strong>${data.property_name}</strong>.</p>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:24px;">Your reliability score is NOT affected.</p>
+            <a href="/student/browse" class="btn btn-primary btn-lg" style="margin-bottom:8px;display:inline-flex;">Find Similar Properties →</a>
+            <button class="btn btn-ghost" style="margin-top:8px;display:block;width:100%" onclick="document.getElementById('urgent-modal-overlay').classList.remove('active')">Dismiss</button>
         </div>
     `;
     overlay.classList.add('active');
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 }
 
 function startPollingFallback() {

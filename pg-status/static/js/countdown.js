@@ -12,9 +12,12 @@ function updateCountdowns() {
         const expiry = new Date(target);
         const diff = expiry - now;
 
+        // Reset classes
+        el.classList.remove('timer-warning', 'timer-urgent');
+
         if (diff <= 0) {
             el.textContent = 'Expired';
-            el.style.color = 'var(--red)';
+            el.classList.add('timer-warning');
             return;
         }
 
@@ -29,12 +32,21 @@ function updateCountdowns() {
             el.textContent = `${hours}h ${mins}m ${secs}s`;
         } else {
             el.textContent = `${mins}m ${secs}s`;
-            if (diff < 3600000) el.style.color = 'var(--red)';
+        }
+
+        // Apply warning/urgent states based on time left
+        if (diff < 3600000) { // Under 1 hour
+            el.classList.add('timer-warning');
+        }
+        if (diff < 900000) { // Under 15 minutes
+            el.classList.add('timer-urgent');
         }
 
         // Prefix icon for bed tiles
         if (el.classList.contains('countdown')) {
-            el.textContent = '⏱ ' + el.textContent;
+            const timeText = el.textContent;
+            el.innerHTML = '<i data-lucide="clock" style="width: 12px; height: 12px; vertical-align: middle; margin-right: 4px; display: inline-block;"></i>' + timeText;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
     });
 }
